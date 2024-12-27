@@ -45,6 +45,8 @@ const defaultPersonalDetails: PersonalDetails = {
     isSnore: null,
     idCopy: "",
     isVolunteer: null,
+    occupation: "",
+    sevaType: ""
 }
 
 
@@ -150,7 +152,7 @@ export default function Home() {
             [name]: value,
         }) as UserData);
     };
-    const handlePersonalDetailsChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>, index: number) => {
+    const handlePersonalDetailsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number) => {
         const { name, value } = e.target;
         let personalDetailsCopy = [...personalDetails]
         let formData: any = { ...personalDetails[index] };

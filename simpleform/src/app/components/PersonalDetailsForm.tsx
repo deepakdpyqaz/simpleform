@@ -16,9 +16,15 @@ interface PersonalDetails {
     isSnore: YesNoType | null;
     idCopy: string;
     isVolunteer: YesNoType | null;
+    occupation: string;
+    sevaType: string;
 
 }
-const PersonalDetailsForm = ({ index, formData, handleChange }) => {
+const PersonalDetailsForm: React.FC<{//+
+    index: number;//+
+    formData: PersonalDetails;//+
+    handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number) => void;//+
+}> = ({ index, formData, handleChange }) =>{
     return (
         <fieldset>
             <div className="mb-4">
@@ -36,7 +42,7 @@ const PersonalDetailsForm = ({ index, formData, handleChange }) => {
                 <input
                     type="text"
                     name="nameOnID"
-                    value={formData?.nameOnID}
+                    value={formData?.name}
                     onChange={(e) => handleChange(e, index)}
                     required
                     className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
@@ -47,7 +53,7 @@ const PersonalDetailsForm = ({ index, formData, handleChange }) => {
                 <input
                     type="date"
                     name="dateOfBirth"
-                    value={formData?.dateOfBirth}
+                    value={formData?.dob}
                     onChange={(e) => handleChange(e, index)}
                     required
                     className="mt-2 px-3 py-2 border border-teal-500 rounded-md w-full"
@@ -68,14 +74,13 @@ const PersonalDetailsForm = ({ index, formData, handleChange }) => {
                 <label className="block text-sm font-semibold text-teal-800">Gender*</label>
                 <select
                     name="gender"
-                    value={formData?.gender}
+                    defaultValue={GenderType.Male}
                     onChange={(e) => handleChange(e, index)}
                     required
                     className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
                 >
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
+                    <option value={GenderType.Male}>Male</option>
+                    <option value={GenderType.Female}>Female</option>
                 </select>
             </div>
             <div className="mb-4">
@@ -83,7 +88,7 @@ const PersonalDetailsForm = ({ index, formData, handleChange }) => {
                 <input
                     type="text"
                     name="initiatingMaster"
-                    value={formData?.initiatingMaster}
+                    value={formData?.spiritualMaster}
                     onChange={(e) => handleChange(e, index)}
                     className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
                 />
@@ -93,7 +98,7 @@ const PersonalDetailsForm = ({ index, formData, handleChange }) => {
                 <input
                     type="text"
                     name="retreatSource"
-                    value={formData?.retreatSource}
+                    value={formData?.findRetreat}
                     onChange={(e) => handleChange(e, index)}
                     className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
                 />
@@ -103,7 +108,7 @@ const PersonalDetailsForm = ({ index, formData, handleChange }) => {
                 <input
                     type="text"
                     name="yearInTouch"
-                    value={formData?.yearInTouch}
+                    value={formData?.startYear}
                     onChange={(e) => handleChange(e, index)}
                     required
                 />
@@ -138,7 +143,7 @@ const PersonalDetailsForm = ({ index, formData, handleChange }) => {
                             type="radio"
                             name="snore"
                             value="Yes"
-                            checked={formData?.snore === "Yes"}
+                            checked={formData?.isSnore === YesNoType.Yes}
                             onChange={(e) => handleChange(e, index)}
                             required
                             className="text-teal-500 focus:ring-teal-500"
@@ -148,7 +153,7 @@ const PersonalDetailsForm = ({ index, formData, handleChange }) => {
                             type="radio"
                             name="snore"
                             value="No"
-                            checked={formData?.snore === "No"}
+                            checked={formData?.isSnore === YesNoType.No}
                             onChange={(e) => handleChange(e, index)}
                             required
                             className="text-teal-500 focus:ring-teal-500"
@@ -174,7 +179,7 @@ const PersonalDetailsForm = ({ index, formData, handleChange }) => {
                             type="radio"
                             name="volunteer"
                             value="Yes"
-                            checked={formData?.volunteer === "Yes"}
+                            checked={formData?.isVolunteer === YesNoType.Yes}
                             onChange={(e) => handleChange(e, index)}
                             required
                             className="text-teal-500 focus:ring-teal-500"
@@ -185,7 +190,7 @@ const PersonalDetailsForm = ({ index, formData, handleChange }) => {
                             type="radio"
                             name="volunteer"
                             value="No"
-                            checked={formData?.volunteer === "No"}
+                            checked={formData?.isVolunteer === YesNoType.No}
                             onChange={(e) => handleChange(e, index)}
                             required
                             className="text-teal-500 focus:ring-teal-500"
@@ -194,7 +199,7 @@ const PersonalDetailsForm = ({ index, formData, handleChange }) => {
                 </div>
             </div>
 
-            {formData?.volunteer === "Yes" && (
+            {formData?.isVolunteer === YesNoType.Yes && (
                 <div>
                     <div className="mb-4">
                         <label className="block text-sm font-semibold text-teal-800">Your occupation*</label>
