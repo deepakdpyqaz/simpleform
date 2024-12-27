@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Simple form",
+  title: "Vihe",
   description: "Created by deepak",
 };
 
