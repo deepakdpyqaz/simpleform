@@ -2,26 +2,38 @@ const priceList = {
     basePrice: 1000,
     perRoom: 1000,
     perDormatory: 700,
-    extraBedRoom: 2800, // Three people
+    extraBedRoom: 800, // Three people
     foodFees: 1000,
 }
-enum AccomodationType {
-    Room = "room",
-    Dormatory = "dormatory"
+enum AccommodationType {
+    Room = "Room",
+    Dormatory = "Dormatory"
 }
 
 enum TravelType {
-    Individual = "individual",
-    Group = "group"
+    Individual = "Individual",
+    Group = "Group"
 }
 
 enum YesNoType {
-    Yes = "yes",
-    No = "no"
+    Yes = "Yes",
+    No = "No"
 }
 
 enum GenderType{
-    Male = "male",
-    Female = "female"
+    Male = "Male",
+    Female = "Female"
 }
-export {priceList, AccomodationType, TravelType, YesNoType, GenderType};
+
+enum BedType{
+    AB2 = "2AB",
+    AB3 = "3AB",
+    AB4 = "4AB",
+    NAB6 = "6NAB",
+}
+
+enum OperationType{
+    Increase = "Increase",
+    Decrease = "Decrease"
+}
+export {priceList, AccommodationType, TravelType, YesNoType, GenderType, BedType, OperationType};

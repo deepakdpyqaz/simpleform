@@ -41,7 +41,7 @@ const PersonalDetailsForm: React.FC<{//+
                 <label className="block text-sm font-semibold text-teal-800">Name (in passport/ID)*</label>
                 <input
                     type="text"
-                    name="nameOnID"
+                    name="name"
                     value={formData?.name}
                     onChange={(e) => handleChange(e, index)}
                     required
@@ -52,7 +52,7 @@ const PersonalDetailsForm: React.FC<{//+
                 <label className="block text-sm font-semibold text-teal-800">Date of Birth (dd-mmm-yyyy)*</label>
                 <input
                     type="date"
-                    name="dateOfBirth"
+                    name="dob"
                     value={formData?.dob}
                     onChange={(e) => handleChange(e, index)}
                     required
@@ -87,7 +87,7 @@ const PersonalDetailsForm: React.FC<{//+
                 <label className="block text-sm font-semibold text-teal-800">Initiating Spiritual Master</label>
                 <input
                     type="text"
-                    name="initiatingMaster"
+                    name="spiritualMaster"
                     value={formData?.spiritualMaster}
                     onChange={(e) => handleChange(e, index)}
                     className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
@@ -97,7 +97,7 @@ const PersonalDetailsForm: React.FC<{//+
                 <label className="block text-sm font-semibold text-teal-800">How did you find out about the retreat?</label>
                 <input
                     type="text"
-                    name="retreatSource"
+                    name="findRetreat"
                     value={formData?.findRetreat}
                     onChange={(e) => handleChange(e, index)}
                     className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
@@ -106,8 +106,9 @@ const PersonalDetailsForm: React.FC<{//+
             <div className="mb-4">
                 <label className="block text-sm font-semibold text-teal-800">Year when you came in touch with the Hare Krishna movement*</label>
                 <input
+                    className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
                     type="text"
-                    name="yearInTouch"
+                    name="startYear"
                     value={formData?.startYear}
                     onChange={(e) => handleChange(e, index)}
                     required
@@ -141,8 +142,8 @@ const PersonalDetailsForm: React.FC<{//+
                     <label className="flex items-center cursor-pointer">
                         <input
                             type="radio"
-                            name="snore"
-                            value="Yes"
+                            name="isSnore"
+                            value={YesNoType.Yes}
                             checked={formData?.isSnore === YesNoType.Yes}
                             onChange={(e) => handleChange(e, index)}
                             required
@@ -151,8 +152,8 @@ const PersonalDetailsForm: React.FC<{//+
                     <label className="flex items-center cursor-pointer">
                         <input
                             type="radio"
-                            name="snore"
-                            value="No"
+                            name="isSnore"
+                            value={YesNoType.No}
                             checked={formData?.isSnore === YesNoType.No}
                             onChange={(e) => handleChange(e, index)}
                             required
@@ -177,8 +178,8 @@ const PersonalDetailsForm: React.FC<{//+
                     <label className="flex items-center cursor-pointer">
                         <input
                             type="radio"
-                            name="volunteer"
-                            value="Yes"
+                            name="isVolunteer"
+                            value={YesNoType.Yes}
                             checked={formData?.isVolunteer === YesNoType.Yes}
                             onChange={(e) => handleChange(e, index)}
                             required
@@ -188,8 +189,8 @@ const PersonalDetailsForm: React.FC<{//+
                     <label className="flex items-center cursor-pointer">
                         <input
                             type="radio"
-                            name="volunteer"
-                            value="No"
+                            name="isVolunteer"
+                            value={YesNoType.No}
                             checked={formData?.isVolunteer === YesNoType.No}
                             onChange={(e) => handleChange(e, index)}
                             required
