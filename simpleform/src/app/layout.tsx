@@ -29,25 +29,26 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <div className="container mx-auto px-4 py-8 bg-gradient-to-b from-teal-200 to-white min-h-screen">
-          <header className="flex items-center justify-center mb-2">
-            <div className="mr-4">
+          <header className="flex flex-col items-center sm:flex-row sm:justify-center mb-4">
+            <div className="mb-4 sm:mb-0 sm:mr-4">
               <Image
                 src="/logo.png"
                 alt="Logo"
-                width={100}
-                height={100}
-                className="object-contain"
+                width={80}
+                height={80}
+                className="object-contain sm:w-[100px] sm:h-[100px]"
               />
             </div>
-            <div className="text-center">
-              <h1 className="text-4xl font-extrabold text-teal-800">
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl font-extrabold text-teal-800 sm:text-4xl">
                 VIHE Saranagati Retreat 2025
               </h1>
-              <p className="text-lg mt-2 text-teal-700">
+              <p className="text-base mt-2 text-teal-700 sm:text-lg">
                 February 23 - March 1, 2025 | Govardhan Retreat Centre
               </p>
             </div>
           </header>
+
           {children}
         </div>
       </body>

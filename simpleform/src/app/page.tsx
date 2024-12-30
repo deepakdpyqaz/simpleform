@@ -34,6 +34,7 @@ interface UserData {
     isDepartureLunchRequired: YesNoType | null;
     donationAmount: number | undefined;
     suggestions: string;
+    coupon: string;
 }
 
 const defaultUserData: UserData = {
@@ -49,7 +50,8 @@ const defaultUserData: UserData = {
     isArrivalLunchRequired: null,
     isDepartureLunchRequired: null,
     donationAmount: 0,
-    suggestions: ""
+    suggestions: "",
+    coupon: ""
 }
 const defaultPersonalDetails: PersonalDetails = {
     devoteeName: "",
@@ -66,7 +68,8 @@ const defaultPersonalDetails: PersonalDetails = {
     idCopy: "",
     isVolunteer: null,
     occupation: "",
-    sevaType: ""
+    sevaType: "",
+    otherSevaType: ""
 }
 
 interface Slot {
@@ -125,6 +128,7 @@ export default function Home() {
     const [submitStatus, setSubmitStatus] = useState<String>("");
     const [slotList, setSlotList] = useState<Slot>(defaultSlot);
     const [roomQuantity, setRoomQuantity] = useState<RoomQuantity>(defaultRoomQuantity);
+    const [couponPct, setCouponPct] = useState<number>(0);
     const fetchSlots = async () => {
         try {
             const res = await fetch('/api/slot', { cache: 'reload' });
@@ -311,6 +315,30 @@ export default function Home() {
         catch (error) {
             console.error(error);
             alert("Error in updating quantity");
+        }
+    }
+    const handleApplyCoupon = async () => {
+        if (userData.coupon === "") {
+            alert("Please enter a coupon code");
+            return;
+        }
+        try {
+            const response = await fetch(`/api/coupon?coupon=${userData.coupon}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    setCouponPct(data?.pct);
+                    alert("Coupon applied successfully");
+                }
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.message}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error in applying coupon");
         }
     }
     return (
@@ -672,6 +700,27 @@ export default function Home() {
                 />
             </div>
 
+            <div className="mb-8">
+                <label htmlFor="discount" className="block text-sm font-semibold text-teal-800">Discount Coupon</label>
+                <div className="mt-2 flex">
+                    <input
+                        type="text"
+                        id="discount"
+                        name="coupon"
+                        onChange={handleChange}
+                        value={userData?.coupon}
+                        className="flex-grow rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
+                    />
+                    <button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        className="ml-4 px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-teal-300"
+                    >
+                        Apply
+                    </button>
+                </div>
+            </div>
+
             <div className="container mx-auto px-4 py-8 bg-gray-100">
                 <span className="block text-sm font-semibold text-teal-800">Contributions summary</span>
                 <div className="mt-2">
@@ -683,36 +732,56 @@ export default function Home() {
                 <div className="mt-1">
                     <div className="flex items-center justify-between">
                         <span className="text-teal-900">Arrival lunch</span>
-                        <span className="text-teal-900">Rs.{userData?.isArrivalLunchRequired?userData?.groupSize*priceList.arrivalLunch:0}/-</span>
+                        <span className="text-teal-900">Rs.{userData?.isArrivalLunchRequired ? userData?.groupSize * priceList.arrivalLunch : 0}/-</span>
                     </div>
                 </div>
                 <div className="mt-1">
                     <div className="flex items-center justify-between">
                         <span className="text-teal-900">Departure lunch lunch</span>
-                        <span className="text-teal-900">Rs.{userData?.isDepartureLunchRequired?userData?.groupSize*priceList.departureLunch:0}/-</span>
+                        <span className="text-teal-900">Rs.{userData?.isDepartureLunchRequired ? userData?.groupSize * priceList.departureLunch : 0}/-</span>
                     </div>
                 </div>
                 <div className="mt-1">
                     <div className="flex items-center justify-between">
                         <span className="text-teal-900">Prasad during retreat</span>
-                        <span className="text-teal-900">Rs.{userData?.isFoodRequired?userData?.groupSize*priceList.foodFees*getDateDifferenceFromString(userData?.startDate, userData?.endDate):0}/-</span>
+                        <span className="text-teal-900">Rs.{userData?.isFoodRequired ? userData?.groupSize * priceList.foodFees * getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 0}/-</span>
                     </div>
                 </div>
                 <div className="mt-1">
                     <div className="flex items-center justify-between">
                         <span className="text-teal-900">Accommodation</span>
-                        <span className="text-teal-900">Rs.{userData?.isAccommodationRequired?roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price:0}/-</span>
+                        <span className="text-teal-900">Rs.{userData?.isAccommodationRequired ? roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price : 0}/-</span>
                     </div>
                 </div>
+
                 <div className="mt-1 border-t-4 border-teal-800">
                     <div className="flex items-center justify-between">
-                        <span className="text-teal-900">Total Charges</span>
+                        <span className="text-teal-900">Total Contribution</span>
                         <span className="text-teal-900">Rs. {
-                            (userData?.isArrivalLunchRequired?userData?.groupSize*priceList.arrivalLunch:0) + 
-                            (userData?.isDepartureLunchRequired?userData?.groupSize*priceList.departureLunch:0) +
-                            (userData?.isFoodRequired?userData?.groupSize*priceList.foodFees*getDateDifferenceFromString(userData?.startDate, userData?.endDate):0) + 
-                            (userData?.isAccommodationRequired?roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price:0)
-                            } /-</span>
+                            (userData?.isArrivalLunchRequired ? userData?.groupSize * priceList.arrivalLunch : 0) +
+                            (userData?.isDepartureLunchRequired ? userData?.groupSize * priceList.departureLunch : 0) +
+                            (userData?.isFoodRequired ? userData?.groupSize * priceList.foodFees * getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 0) +
+                            (userData?.isAccommodationRequired ? roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price : 0)
+                        } /-</span>
+                    </div>
+                </div>
+                <div className="mt-1">
+                    <div className="flex items-center justify-between">
+                        <span className="text-teal-900">Coupon Discount </span>
+                        <span className="text-teal-900">{couponPct}%</span>
+                    </div>
+                </div>
+                <div className="mt-1">
+                    <div className="flex items-center justify-between">
+                        <span className="text-teal-900">Final Contribution </span>
+                        <span className="text-teal-900">Rs. {
+                            Math.round((
+                                (userData?.isArrivalLunchRequired ? userData?.groupSize * priceList.arrivalLunch : 0) +
+                                (userData?.isDepartureLunchRequired ? userData?.groupSize * priceList.departureLunch : 0) +
+                                (userData?.isFoodRequired ? userData?.groupSize * priceList.foodFees * getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 0) +
+                                (userData?.isAccommodationRequired ? roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price : 0)
+                            ) * (100 - couponPct) / 100)
+                        } /- </span>
                     </div>
                 </div>
             </div>

@@ -18,13 +18,14 @@ interface PersonalDetails {
     isVolunteer: YesNoType | null;
     occupation: string;
     sevaType: string;
+    otherSevaType: string;
 
 }
 const PersonalDetailsForm: React.FC<{//+
     index: number;//+
     formData: PersonalDetails;//+
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number) => void;//+
-}> = ({ index, formData, handleChange }) =>{
+}> = ({ index, formData, handleChange }) => {
     return (
         <fieldset>
             <div className="mb-4">
@@ -162,7 +163,7 @@ const PersonalDetailsForm: React.FC<{//+
                 </div>
             </div>
             <div className="mb-4">
-                <label className="block text-sm font-semibold text-teal-800">ID copy (Passport mandatory for foreigners)</label>
+                <label className="block text-sm font-semibold text-teal-800">Valid ID (AADHAR Card for Indians/Passport for non-indians)</label>
                 <input
                     type="text"
                     name="idCopy"
@@ -200,7 +201,7 @@ const PersonalDetailsForm: React.FC<{//+
                 </div>
             </div>
 
-            {formData?.isVolunteer === YesNoType.Yes && (
+            {formData?.isVolunteer === YesNoType.Yes ?
                 <div>
                     <div className="mb-4">
                         <label className="block text-sm font-semibold text-teal-800">Your occupation*</label>
@@ -238,8 +239,21 @@ const PersonalDetailsForm: React.FC<{//+
                             <option value="Other">Any Seva I would like to do</option>
                         </select>
                     </div>
+                    {formData.sevaType==="Other" &&
+                        <div className="mb-4">
+                            <label className="block text-sm font-semibold text-teal-800">What seva would you prefer?</label>
+                            <input
+                                type="text"
+                                name="otherSevaType"
+                                value={formData?.otherSevaType}
+                                onChange={(e) => handleChange(e, index)}
+                                required
+                                className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
+                            />
+                        </div>
+                    }
                 </div>
-            )}
+                : null}
         </fieldset>
     );
 };
