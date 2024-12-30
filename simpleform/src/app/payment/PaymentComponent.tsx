@@ -40,40 +40,32 @@ const defaultPaymentData: PaymentData = {
     hash: ""
 }
 export default function PaymentComponent() {
-    const PAYU_URL=process.env.NEXT_PUBLIC_PAYU_URL;
+    const PAYU_URL = process.env.NEXT_PUBLIC_PAYU_URL;
     const router = useRouter();
     const searchParams = useSearchParams();
     const [id, setId] = useState("");
     const [paymentData, setPaymentData] = useState<PaymentData>(defaultPaymentData);
-    const fetchPaymentData = async () => {
+    const fetchPaymentData = async (id: string) => {
         try {
-            const response = await fetch(`api/form?id=${id}`);
+            const response = await fetch(`api/payment?id=${id}`);
             if (response.ok) {
                 const data = await response.json();
-                setPaymentData({
-                    groupSize: data.groupSize,
-                    accommodation: data.accommodationType,
-                    departureLunch: data.departureLunch,
-                    arrivalLunch: data.arrivalLunch,
-                    coupon: data.coupon,
-                    food: data.food,
-                    totalCharges: data.charges
-                } as PaymentData);
+                setPaymentData(data as PaymentData);
             } else {
                 const errorData = await response.json();
                 alert("Error fetching payment data: " + errorData.error);
-                router.push("/");
+                // router.push("/");
             }
         } catch (error) {
             alert("Error fetching payment data: " + error);
-            router.push("/");
+            // router.push("/");
         }
     }
     useEffect(() => {
-        const submissionId = searchParams.get('submissionId');
+        const submissionId = searchParams.get('id');
         if (submissionId !== null) {
             setId(submissionId);
-            fetchPaymentData();
+            fetchPaymentData(submissionId);
         } else {
             alert("Invalid submission");
             router.push("/");
@@ -94,26 +86,26 @@ export default function PaymentComponent() {
                         </tr>
                     </thead>
                     <tbody>
-                            <tr>
-                                <td className="px-4 py-2 border-b">Accommodation</td>
-                                <td className="px-4 py-2 border-b">Rs.{paymentData?.accommodation}/-</td>
-                            </tr> 
-                            <tr>
-                                <td className="px-4 py-2 border-b">Prasad during retreat</td>
-                                <td className="px-4 py-2 border-b">Rs.{paymentData?.food}/-</td>
-                            </tr>
-                            <tr>
-                                <td className="px-4 py-2 border-b">Lunch during arrival</td>
-                                <td className="px-4 py-2 border-b">Rs.{paymentData?.arrivalLunch}/-</td>
-                            </tr>
-                            <tr>
-                                <td className="px-4 py-2 border-b">Lunch during departure</td>
-                                <td className="px-4 py-2 border-b">Rs.{paymentData?.departureLunch}/-</td>
-                            </tr>
-                            <tr>
-                                <td className="px-4 py-2 border-b">Discount</td>
-                                <td className="px-4 py-2 border-b">Rs.{paymentData?.coupon*(paymentData?.departureLunch + paymentData?.arrivalLunch + paymentData?.accommodation + paymentData?.food)/100}/-</td>
-                            </tr>
+                        <tr>
+                            <td className="px-4 py-2 border-b">Accommodation</td>
+                            <td className="px-4 py-2 border-b">Rs.{paymentData?.accommodation}/-</td>
+                        </tr>
+                        <tr>
+                            <td className="px-4 py-2 border-b">Prasad during retreat</td>
+                            <td className="px-4 py-2 border-b">Rs.{paymentData?.food}/-</td>
+                        </tr>
+                        <tr>
+                            <td className="px-4 py-2 border-b">Lunch during arrival</td>
+                            <td className="px-4 py-2 border-b">Rs.{paymentData?.arrivalLunch}/-</td>
+                        </tr>
+                        <tr>
+                            <td className="px-4 py-2 border-b">Lunch during departure</td>
+                            <td className="px-4 py-2 border-b">Rs.{paymentData?.departureLunch}/-</td>
+                        </tr>
+                        <tr>
+                            <td className="px-4 py-2 border-b">Discount</td>
+                            <td className="px-4 py-2 border-b">Rs.{paymentData?.coupon * (paymentData?.departureLunch + paymentData?.arrivalLunch + paymentData?.accommodation + paymentData?.food) / 100}/-</td>
+                        </tr>
                     </tbody>
                 </table>
                 <div className="mb-8 mt-4">
@@ -127,10 +119,17 @@ export default function PaymentComponent() {
             <input type="hidden" name="email" value={paymentData?.email} />
             <input type="hidden" name="firstname" value={paymentData?.firstname} />
             <input type="hidden" name="surl" value={paymentData?.surl} />
-            <input type="hidden" name="furl" value={paymentData?.furl}/>
+            <input type="hidden" name="furl" value={paymentData?.furl} />
             <input type="hidden" name="phone" value={paymentData?.phone} />
-            <input type="hidden" name="hash" value={paymentData?.hash}/>
-            <input type="submit" value="submit" />
+            <input type="hidden" name="hash" value={paymentData?.hash} />
+            <div className="text-center mt-3">
+                    <button
+                        type="submit"
+                        className="px-8 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-lg hover:bg-teal-600 transition-all duration-200"
+                    >
+                        Submit
+                    </button>
+                </div>
         </form>
     )
 }

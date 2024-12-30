@@ -1,19 +1,29 @@
 import nodemailer from 'nodemailer';
 
-interface MailOptions {
+export interface MailOptions {
   to: string;
   subject: string;
   text?: string;
   html?: string;
+  attachments?: {
+    filename: string;
+    path: string;
+  }[];
 }
 
-export async function sendEmail({ to, subject, text, html }: MailOptions): Promise<void> {
+export async function sendEmail({
+  to,
+  subject,
+  text,
+  html,
+  attachments,
+}: MailOptions): Promise<void> {
   // Configure the SMTP transporter
   const transporter = nodemailer.createTransport({
     service: 'Gmail', // or use SMTP details of your provider
     auth: {
-      user: "deepakdpyqaz@gmail.com", // Email address
-      pass: "cvku axso divl mxqx", // App password or email password
+      user: process.env.EMAIL_USERNAME, // Email address
+      pass: process.env.EMAIL_PASSWORD, // App password or email password
     },
   });
 
@@ -24,6 +34,7 @@ export async function sendEmail({ to, subject, text, html }: MailOptions): Promi
     subject,
     text,
     html,
+    attachments, // Attachments are now included here
   };
 
   // Send email

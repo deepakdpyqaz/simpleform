@@ -251,7 +251,6 @@ export default function Home() {
                 setSubmitStatus(SubmitStatus.Submitted);
                 setUserData(defaultUserData);
                 setPersonalDetails([]);
-                alert("Form submitted successfully");
                 const body = await response.json();
                 const query = new URLSearchParams({ id: body.id }).toString();
                 router.push(`/payment?${query}`);
