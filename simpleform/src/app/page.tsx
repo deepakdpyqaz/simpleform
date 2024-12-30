@@ -33,6 +33,7 @@ interface UserData {
     isArrivalLunchRequired: YesNoType | null;
     isDepartureLunchRequired: YesNoType | null;
     donationAmount: number | undefined;
+    suggestions: string;
 }
 
 const defaultUserData: UserData = {
@@ -43,11 +44,12 @@ const defaultUserData: UserData = {
     roomQuantity: defaultRoomQuantity,
     isFoodRequired: null,
     isPartialRetreat: null,
-    startDate: undefined,
-    endDate: undefined,
+    startDate: "2025-02-23",
+    endDate: "2025-03-01",
     isArrivalLunchRequired: null,
     isDepartureLunchRequired: null,
-    donationAmount: undefined
+    donationAmount: 0,
+    suggestions: ""
 }
 const defaultPersonalDetails: PersonalDetails = {
     devoteeName: "",
@@ -93,6 +95,25 @@ const defaultSlot: Slot = {
     }
 }
 
+function getDateDifferenceFromString(
+    date1Str: string | undefined,
+    date2Str: string | undefined
+): number {
+    if (date1Str === undefined || date2Str === undefined) {
+        return 0;
+    }
+    // Parse the string dates into Date objects
+    const date1 = new Date(date1Str);
+    const date2 = new Date(date2Str);
+
+    const diffInMilliseconds = Math.abs(date1.getTime() - date2.getTime());
+
+    const minutes = Math.floor(diffInMilliseconds / (1000 * 60));
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    return days;
+}
 export default function Home() {
     const router = useRouter();
     const [userData, setUserData] = useState<UserData>(defaultUserData);
@@ -148,6 +169,10 @@ export default function Home() {
                 return [...personalDetailsCopy, ...newPersonalDetails] as PersonalDetails[];
             }
         })
+        setUserData((userData) => {
+            return { ...userData, roomQuantity: defaultRoomQuantity }
+        })
+        setRoomQuantity(defaultRoomQuantity);
     }, [userData.groupSize]);
     useEffect(() => {
         setUserData(userData => {
@@ -159,7 +184,34 @@ export default function Home() {
             return { ...userData, isAccommodationRequired: YesNoType.No, roomQuantity: defaultRoomQuantity } as UserData;
         })
     }, [userData.isPartialRetreat])
+    useEffect(() => {
+        if (userData.startDate != null && userData.endDate != null && defaultUserData.startDate != null && defaultUserData.endDate != null) {
+            let startDate = new Date(userData.startDate);
+            let endDate = new Date(userData.endDate);
+            let defaultStartDate = new Date(defaultUserData.startDate);
+            let defaultEndDate = new Date(defaultUserData.endDate);
+            if ((startDate <= endDate) && (startDate >= defaultStartDate) && (endDate <= defaultEndDate)) {
+                return;
+            }
+            else if (endDate < startDate) {
+                alert("End date cannot be before the start date");
+            }
+            else if (startDate < defaultStartDate) {
+                alert(`Start date cannot be before ${defaultUserData.startDate}`);
+            }
+            else if (endDate > defaultEndDate) {
+                alert(`End date cannot be after ${defaultUserData.endDate}`);
+            }
+            else {
+                alert("Invalid date range");
+            }
 
+        }
+        setUserData(userData => {
+            return { ...userData, startDate: defaultUserData.startDate, endDate: defaultUserData.endDate } as UserData;
+        })
+
+    }, [userData.startDate, userData.endDate])
     useEffect(() => {
         fetchSlots();
     }, [])
@@ -188,6 +240,7 @@ export default function Home() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log(userData);
         let body = { ...userData, personalDetails: personalDetails, charges: charges }
         try {
             const response = await fetch("/api/form", {
@@ -240,16 +293,15 @@ export default function Home() {
                     } else {
                         alert("Cannot decrease beyond 0");
                     }
-                } else[
+                } else {
                     alert("Wrong operation")
-                ]
+                }
                 if (validateRoomQuantity(roomQty)) {
                     setUserData((userData) => {
                         return { ...userData, roomQuantity: roomQty } as UserData;
                     })
                     return roomQty;
                 }
-
                 else {
                     alert("Can't book more slots than required");
                     return roomQuantity;
@@ -319,91 +371,7 @@ export default function Home() {
                     </div> : null
             }
             <div className="mb-8">
-                <label className="block text-sm font-semibold text-teal-800">Do you require prasad?*</label>
-                <div className="mt-4 flex items-center gap-6">
-                    <label className="flex items-center cursor-pointer">
-                        <input
-                            type="radio"
-                            name="isFoodRequired"
-                            value={YesNoType.Yes}
-                            required
-                            checked={userData?.isFoodRequired === YesNoType.Yes}
-                            onChange={handleChange}
-                            className="text-teal-500 focus:ring-teal-500"
-                        />
-                        <span className="ml-2 text-teal-700">Yes</span>
-                    </label>
-                    <label className="flex items-center cursor-pointer">
-                        <input
-                            type="radio"
-                            name="isFoodRequired"
-                            value={YesNoType.No}
-                            checked={userData?.isFoodRequired === YesNoType.No}
-                            onChange={handleChange}
-                            className="text-teal-500 focus:ring-teal-500"
-                        />
-                        <span className="ml-2 text-teal-700">No</span>
-                    </label>
-                </div>
-            </div>
-            <div className="mb-8">
-                <label className="block text-sm font-semibold text-teal-800">Do you require lunch on arrival?*</label>
-                <div className="mt-4 flex items-center gap-6">
-                    <label className="flex items-center cursor-pointer">
-                        <input
-                            type="radio"
-                            name="isArrivalLunchRequired"
-                            value={YesNoType.Yes}
-                            required
-                            checked={userData?.isArrivalLunchRequired === YesNoType.Yes}
-                            onChange={handleChange}
-                            className="text-teal-500 focus:ring-teal-500"
-                        />
-                        <span className="ml-2 text-teal-700">Yes</span>
-                    </label>
-                    <label className="flex items-center cursor-pointer">
-                        <input
-                            type="radio"
-                            name="isArrivalLunchRequired"
-                            value={YesNoType.No}
-                            checked={userData?.isArrivalLunchRequired === YesNoType.No}
-                            onChange={handleChange}
-                            className="text-teal-500 focus:ring-teal-500"
-                        />
-                        <span className="ml-2 text-teal-700">No</span>
-                    </label>
-                </div>
-            </div>
-            <div className="mb-8">
-                <label className="block text-sm font-semibold text-teal-800">Do you require lunch on departure?*</label>
-                <div className="mt-4 flex items-center gap-6">
-                    <label className="flex items-center cursor-pointer">
-                        <input
-                            type="radio"
-                            name="isDepartureLunchRequired"
-                            value={YesNoType.Yes}
-                            required
-                            checked={userData?.isDepartureLunchRequired === YesNoType.Yes}
-                            onChange={handleChange}
-                            className="text-teal-500 focus:ring-teal-500"
-                        />
-                        <span className="ml-2 text-teal-700">Yes</span>
-                    </label>
-                    <label className="flex items-center cursor-pointer">
-                        <input
-                            type="radio"
-                            name="isDepartureLunchRequired"
-                            value={YesNoType.No}
-                            checked={userData?.isDepartureLunchRequired === YesNoType.No}
-                            onChange={handleChange}
-                            className="text-teal-500 focus:ring-teal-500"
-                        />
-                        <span className="ml-2 text-teal-700">No</span>
-                    </label>
-                </div>
-            </div>
-            <div className="mb-8">
-                <label className="block text-sm font-semibold text-teal-800">Do you want a partial retreat?*</label>
+                <label className="block text-sm font-semibold text-teal-800">Would you like to opt for a partial registration for the Sarnagati retreat?*</label>
                 <div className="mt-4 flex items-center gap-6">
                     <label className="flex items-center cursor-pointer">
                         <input
@@ -454,7 +422,119 @@ export default function Home() {
                             className="mt-2 px-3 py-2 border border-teal-500 rounded-md w-full"
                         />
                     </div>
-                </div> :
+                </div> : null}
+            <div className="mb-8">
+                <label className="block text-sm font-semibold text-teal-800">Do you require prasad during retreat? (Rs. {priceList.foodFees}/- per day per person)*</label>
+                <div className="mt-4 flex items-center gap-6">
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="isFoodRequired"
+                            value={YesNoType.Yes}
+                            required
+                            checked={userData?.isFoodRequired === YesNoType.Yes}
+                            onChange={handleChange}
+                            className="text-teal-500 focus:ring-teal-500"
+                        />
+                        <span className="ml-2 text-teal-700">Yes</span>
+                    </label>
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="isFoodRequired"
+                            value={YesNoType.No}
+                            checked={userData?.isFoodRequired === YesNoType.No}
+                            onChange={handleChange}
+                            className="text-teal-500 focus:ring-teal-500"
+                        />
+                        <span className="ml-2 text-teal-700">No</span>
+                    </label>
+                </div>
+                {userData?.isFoodRequired === YesNoType.Yes ?
+                    <div className="mt">
+                        <div className="flex items-center justify-between">
+                            <span className="mt-2 text-teal-800">Contribution:
+                                Rs. {priceList.foodFees * userData?.groupSize * getDateDifferenceFromString(userData?.startDate, userData?.endDate)} /-
+                            </span>
+                        </div>
+                    </div> : null
+                }
+            </div>
+            <div className="mb-8">
+                <label className="block text-sm font-semibold text-teal-800">Do you require lunch on the day of arrival?(Rs. {priceList.arrivalLunch} /- per person) *</label>
+                <div className="mt-4 flex items-center gap-6">
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="isArrivalLunchRequired"
+                            value={YesNoType.Yes}
+                            required
+                            checked={userData?.isArrivalLunchRequired === YesNoType.Yes}
+                            onChange={handleChange}
+                            className="text-teal-500 focus:ring-teal-500"
+                        />
+                        <span className="ml-2 text-teal-700">Yes</span>
+                    </label>
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="isArrivalLunchRequired"
+                            value={YesNoType.No}
+                            checked={userData?.isArrivalLunchRequired === YesNoType.No}
+                            onChange={handleChange}
+                            className="text-teal-500 focus:ring-teal-500"
+                        />
+                        <span className="ml-2 text-teal-700">No</span>
+                    </label>
+                </div>
+                {userData?.isArrivalLunchRequired === YesNoType.Yes ?
+                    <div className="mt">
+                        <div className="flex items-center justify-between">
+                            <span className="mt-2 text-teal-800">Contribution:
+                                Rs. {priceList.arrivalLunch * userData?.groupSize} /-
+                            </span>
+                        </div>
+                    </div> : null
+                }
+            </div>
+            <div className="mb-8">
+                <label className="block text-sm font-semibold text-teal-800">Do you require lunch on the day of departure? (Rs. {priceList.departureLunch} /- per person)*</label>
+                <div className="mt-4 flex items-center gap-6">
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="isDepartureLunchRequired"
+                            value={YesNoType.Yes}
+                            required
+                            checked={userData?.isDepartureLunchRequired === YesNoType.Yes}
+                            onChange={handleChange}
+                            className="text-teal-500 focus:ring-teal-500"
+                        />
+                        <span className="ml-2 text-teal-700">Yes</span>
+                    </label>
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="isDepartureLunchRequired"
+                            value={YesNoType.No}
+                            checked={userData?.isDepartureLunchRequired === YesNoType.No}
+                            onChange={handleChange}
+                            className="text-teal-500 focus:ring-teal-500"
+                        />
+                        <span className="ml-2 text-teal-700">No</span>
+                    </label>
+                </div>
+                {userData?.isDepartureLunchRequired === YesNoType.Yes ?
+                    <div className="mt">
+                        <div className="flex items-center justify-between">
+                            <span className="mt-2 text-teal-800">Contribution:
+                                Rs. {priceList.departureLunch * userData?.groupSize} /-
+                            </span>
+                        </div>
+                    </div> : null
+                }
+            </div>
+            {userData?.isPartialRetreat === YesNoType.No ?
                 <>
                     <div className="mb-8">
                         <label className="block text-sm font-semibold text-teal-800">Do you require accommodation?*</label>
@@ -535,7 +615,7 @@ export default function Home() {
                             </div>
                         </div>
                         : null}
-                </>
+                </> : null
             }
             <div className="container mx-auto px-4 py-8 bg-gray-100 min-h-screen">
                 <label className="block text-sm font-semibold text-teal-800">Enter personal details*</label>
@@ -559,6 +639,81 @@ export default function Home() {
                 </div>
                 <div className="tab-content mt-4 bg-white p-4 shadow rounded">
                     <PersonalDetailsForm handleChange={handlePersonalDetailsChange} index={activeTab} formData={personalDetails[activeTab]} />
+                </div>
+            </div>
+
+            <div className="mb-4 mt-4">
+                <label className="block text-sm font-semibold text-teal-800">WOULD YOU LIKE TO HELP FUND THE RETREAT? <br />
+                    The registration fees do not cover the entire cost of the retreat. We need your support to continue running the program. If you are interested in sponsoring some area of the retreat, please select from the services below and we can write back with more details.
+                </label>
+                <select
+                    name="donationAmount"
+                    defaultValue={userData.donationAmount}
+                    onChange={handleChange}
+                    required
+                    className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
+                >
+                    <option value={0}>Rs. 0/-</option>
+                    <option value={1000}>Rs. 1000/-</option>
+                    <option value={2000}>Rs. 2000/-</option>
+                </select>
+            </div>
+
+            <div className="mb-4 mt-4">
+                <label className="block text-sm font-semibold text-teal-800">Any comments/suggestions/feedback? </label>
+                <input
+                    type="text"
+                    id="text"
+                    name="suggestions"
+                    required
+                    onChange={handleChange}
+                    value={userData?.suggestions}
+                    className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
+                />
+            </div>
+
+            <div className="container mx-auto px-4 py-8 bg-gray-100">
+                <span className="block text-sm font-semibold text-teal-800">Contributions summary</span>
+                <div className="mt-2">
+                    <div className="flex items-center justify-between">
+                        <span className="text-teal-900">Ameneties</span>
+                        <span className="text-teal-900">Contributions</span>
+                    </div>
+                </div>
+                <div className="mt-1">
+                    <div className="flex items-center justify-between">
+                        <span className="text-teal-900">Arrival lunch</span>
+                        <span className="text-teal-900">Rs.{userData?.isArrivalLunchRequired?userData?.groupSize*priceList.arrivalLunch:0}/-</span>
+                    </div>
+                </div>
+                <div className="mt-1">
+                    <div className="flex items-center justify-between">
+                        <span className="text-teal-900">Departure lunch lunch</span>
+                        <span className="text-teal-900">Rs.{userData?.isDepartureLunchRequired?userData?.groupSize*priceList.departureLunch:0}/-</span>
+                    </div>
+                </div>
+                <div className="mt-1">
+                    <div className="flex items-center justify-between">
+                        <span className="text-teal-900">Prasad during retreat</span>
+                        <span className="text-teal-900">Rs.{userData?.isFoodRequired?userData?.groupSize*priceList.foodFees*getDateDifferenceFromString(userData?.startDate, userData?.endDate):0}/-</span>
+                    </div>
+                </div>
+                <div className="mt-1">
+                    <div className="flex items-center justify-between">
+                        <span className="text-teal-900">Accommodation</span>
+                        <span className="text-teal-900">Rs.{userData?.isAccommodationRequired?roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price:0}/-</span>
+                    </div>
+                </div>
+                <div className="mt-1 border-t-4 border-teal-800">
+                    <div className="flex items-center justify-between">
+                        <span className="text-teal-900">Total Charges</span>
+                        <span className="text-teal-900">Rs. {
+                            (userData?.isArrivalLunchRequired?userData?.groupSize*priceList.arrivalLunch:0) + 
+                            (userData?.isDepartureLunchRequired?userData?.groupSize*priceList.departureLunch:0) +
+                            (userData?.isFoodRequired?userData?.groupSize*priceList.foodFees*getDateDifferenceFromString(userData?.startDate, userData?.endDate):0) + 
+                            (userData?.isAccommodationRequired?roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price:0)
+                            } /-</span>
+                    </div>
                 </div>
             </div>
             <div className="text-center mt-3">

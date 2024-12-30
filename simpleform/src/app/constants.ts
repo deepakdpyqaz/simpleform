@@ -3,7 +3,10 @@ const priceList = {
     perRoom: 1000,
     perDormatory: 700,
     extraBedRoom: 800, // Three people
-    foodFees: 1000,
+    foodFees: 100,
+    arrivalLunch: 100,
+    departureLunch: 100
+
 }
 enum AccommodationType {
     Room = "Room",
