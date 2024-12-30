@@ -61,11 +61,6 @@ export default function PaymentComponent() {
         e.preventDefault();
     }
     return (
-        <div className="container mx-auto px-4 py-8 bg-gradient-to-b from-teal-200 to-white min-h-screen">
-            <header className="text-center mb-12">
-                <h1 className="text-4xl font-extrabold text-teal-800">VIHE Saranagati Retreat 2025</h1>
-                <p className="text-lg mt-2 text-teal-700">February 23 - March 1, 2025 | Govardhan Retreat Centre</p>
-            </header>
             <form onSubmit={handleSubmit} className="bg-white shadow-2xl rounded-xl p-8 max-w-lg mx-auto border border-teal-300">
                 <div className="mb-8">
                     <label className="block text-sm font-semibold text-teal-800">Number of people: {paymentData?.groupSize}</label>
@@ -113,7 +108,6 @@ export default function PaymentComponent() {
                     </div>
                 </div>
             </form>
-        </div>
     )
 }
 
