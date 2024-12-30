@@ -205,25 +205,17 @@ const PersonalDetailsForm: React.FC<{//+
                 <div>
                     <div className="mb-4">
                         <label className="block text-sm font-semibold text-teal-800">Your occupation*</label>
-                        <select
-                            name="occupation"
-                            value={formData?.occupation}
-                            onChange={(e) => handleChange(e, index)}
-                            required
-                            className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
-                        >
-                            <option value="">Select Occupation</option>
-                            <option value="Lead kirtan">Lead kirtan</option>
-                            <option value="Prasad">Prasad</option>
-                            <option value="Setup">Setup</option>
-                            <option value="Doctor">Doctor</option>
-                            <option value="Mridanga">Mridanga</option>
-                            <option value="Nurse">Nurse</option>
-                            <option value="Other">Any Seva I would like to do</option>
-                        </select>
+                        <input
+                                type="text"
+                                name="occupation"
+                                value={formData?.occupation}
+                                onChange={(e) => handleChange(e, index)}
+                                required
+                                className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
+                            />
                     </div>
                     <div className="mb-4">
-                        <label>Type of seva you would like to render?</label>
+                        <label className="block text-sm font-semibold text-teal-800">Type of seva you would like to render?</label>
                         <select
                             name="sevaType"
                             value={formData?.sevaType}

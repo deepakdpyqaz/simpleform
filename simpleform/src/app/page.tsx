@@ -121,9 +121,6 @@ export default function Home() {
     const router = useRouter();
     const [userData, setUserData] = useState<UserData>(defaultUserData);
     const [charges, setCharges] = useState<Number>(0);
-    const [foodCharges, setFoodCharges] = useState<Number>(0);
-    const [roomCharges, setRoomCharges] = useState<Number>(0);
-    const [tarrifMessage, setTarrifMessage] = useState<String>("");
     const [personalDetails, setPersonalDetails] = useState<PersonalDetails[]>([]);
     const [submitStatus, setSubmitStatus] = useState<String>("");
     const [slotList, setSlotList] = useState<Slot>(defaultSlot);
@@ -427,7 +424,7 @@ export default function Home() {
                 </div>
             </div>
             {userData?.isPartialRetreat === YesNoType.Yes ?
-                <div className="mb-8 flex gap-6">
+                <div className="mb-8 flex flex-col sm:flex-row gap-6">
                     <div className="flex-1">
                         <label className="block text-sm font-semibold text-teal-800">Start Date*</label>
                         <input
@@ -702,7 +699,7 @@ export default function Home() {
 
             <div className="mb-8">
                 <label htmlFor="discount" className="block text-sm font-semibold text-teal-800">Discount Coupon</label>
-                <div className="mt-2 flex">
+                <div className="mt-2 flex flex-col sm:flex-row  items-center">
                     <input
                         type="text"
                         id="discount"
@@ -714,7 +711,7 @@ export default function Home() {
                     <button
                         type="button"
                         onClick={handleApplyCoupon}
-                        className="ml-4 px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-teal-300"
+                        className="px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-teal-300"
                     >
                         Apply
                     </button>
