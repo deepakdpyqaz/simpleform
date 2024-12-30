@@ -80,8 +80,8 @@ const PersonalDetailsForm: React.FC<{//+
                     required
                     className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
                 >
-                    <option value={GenderType.Male}>Male</option>
-                    <option value={GenderType.Female}>Female</option>
+                    <option className="text-sm text-teal-800" value={GenderType.Male}>Male</option>
+                    <option className="text-sm text-teal-800" value={GenderType.Female}>Female</option>
                 </select>
             </div>
             <div className="mb-4">

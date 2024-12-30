@@ -3,10 +3,10 @@ import {PersonalDetails} from "@/app/components/PersonalDetailsForm";
 import mongoose, { Schema, model, models } from "mongoose";
 
 const RoomQuantitySchema = new Schema({
-  "2AB": {type: "string", required: true},
-  "3AB": {type: "string", required: true},
-  "4AB": {type: "string", required: true},
-  "6NAB": {type: "string", required: true}
+  "2AB": {type: "number", required: true, default: 0},
+  "3AB": {type: "number", required: true, default: 0},
+  "4AB": {type: "number", required: true, default: 0},
+  "6NAB": {type: "number", required: true, default: 0}
 })
 const PersonalDetailsSchema = new Schema({
   devoteeName: { type: "string", required: true},
@@ -30,19 +30,21 @@ const FormSubmissionSchema = new Schema({
   email: { type: String, required: true },
   groupSize: { type: Number, required: true },
   travelType: {type: String, required: false},
-  isAccommodationRequired: {type: Boolean, required:true},
+  isAccommodationRequired: {type: String, required:true},
   roomQuantity: {type: RoomQuantitySchema, required: false},
   isFoodRequired: {type: String, required: false},
   isPartialRetreat: {type: String, required: false},
-  startDate: { type: Date, required: false },
-  endDate: { type: Date, required: false },
+  startDate: { type: String, required: false },
+  endDate: { type: String, required: false },
   isArrivalLunchRequired: {type: String, required: false},
   isDepartureLunchRequired: {type: String, required: false},
   donationAmount: {type: Number, required: false},
   suggestions: {type: String, required: false},
   coupon: {type: String, required: false},
-  charges: {type: Number, required: false},
+  discount: {type: Number, required: false, default: 0},
+  charges: {type: Number, required: true, default: 0},
   personalDetails: [PersonalDetailsSchema],
+  status: {type: String, enum: ["success", "failure", "pending"], required: false, default: "pending"},
   createdAt: { type: Date, default: Date.now },
 });
 

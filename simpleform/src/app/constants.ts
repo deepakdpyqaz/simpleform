@@ -1,8 +1,4 @@
 const priceList = {
-    basePrice: 1000,
-    perRoom: 1000,
-    perDormatory: 700,
-    extraBedRoom: 800, // Three people
     foodFees: 100,
     arrivalLunch: 100,
     departureLunch: 100
@@ -39,4 +35,11 @@ enum OperationType{
     Increase = "Increase",
     Decrease = "Decrease"
 }
-export {priceList, AccommodationType, TravelType, YesNoType, GenderType, BedType, OperationType};
+
+enum SubmitStatus{
+    Pending,
+    Submitted,
+    Failed,
+    InProgress
+}
+export {priceList, AccommodationType, TravelType, YesNoType, GenderType, BedType, OperationType, SubmitStatus};
