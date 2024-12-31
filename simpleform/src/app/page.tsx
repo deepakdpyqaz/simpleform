@@ -227,15 +227,25 @@ export default function Home() {
     const handleTabClick = (index: number) => {
         setActiveTab(index);
     };
+    function validatePhoneNumber(phoneNumber: string): boolean {
+        const regex = /^[+]?[0-9]{1,4}?[-.\s]?[(]?[0-9]{1,3}?[)]?[-.\s]?[0-9]{3,4}[-.\s]?[0-9]{3,4}$/;
+        return regex.test(phoneNumber);
+      }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         let charges = Math.round((
-            (userData?.isArrivalLunchRequired ? userData?.groupSize * priceList.arrivalLunch : 0) +
-            (userData?.isDepartureLunchRequired ? userData?.groupSize * priceList.departureLunch : 0) +
-            (userData?.isFoodRequired ? userData?.groupSize * priceList.foodFees * getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 0) +
-            (userData?.isAccommodationRequired ? roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price : 0)
-        ) * (100 - couponPct) / 100)
+            (userData?.isArrivalLunchRequired === YesNoType.Yes? userData?.groupSize * priceList.arrivalLunch : 0) +
+            (userData?.isDepartureLunchRequired === YesNoType.Yes ? userData?.groupSize * priceList.departureLunch : 0) +
+            (userData?.isFoodRequired === YesNoType.Yes ? userData?.groupSize * priceList.foodFees * getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 0) +
+            (userData?.isAccommodationRequired === YesNoType.Yes ? roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price : 0)
+        ) * (100 - couponPct) / 100);
+        personalDetails.forEach((personalDetail: PersonalDetails)=>{
+            if (!validatePhoneNumber(personalDetail.whatsappNumber)) {
+                alert("Invalid contact number format");
+                return false;
+            }
+        })
         let body = { ...userData, personalDetails: personalDetails, charges: charges, discount: couponPct}
         try {
             setSubmitStatus(SubmitStatus.Pending);
@@ -685,7 +695,6 @@ export default function Home() {
                         type="text"
                         id="text"
                         name="suggestions"
-                        required
                         onChange={handleChange}
                         value={userData?.suggestions}
                         className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
@@ -724,25 +733,25 @@ export default function Home() {
                     <div className="mt-1">
                         <div className="flex items-center justify-between">
                             <span className="text-teal-900">Arrival lunch</span>
-                            <span className="text-teal-900">Rs.{userData?.isArrivalLunchRequired ? userData?.groupSize * priceList.arrivalLunch : 0}/-</span>
+                            <span className="text-teal-900">Rs.{userData?.isArrivalLunchRequired===YesNoType.Yes ? userData?.groupSize * priceList.arrivalLunch : 0}/-</span>
                         </div>
                     </div>
                     <div className="mt-1">
                         <div className="flex items-center justify-between">
-                            <span className="text-teal-900">Departure lunch lunch</span>
-                            <span className="text-teal-900">Rs.{userData?.isDepartureLunchRequired ? userData?.groupSize * priceList.departureLunch : 0}/-</span>
+                            <span className="text-teal-900">Departure lunch</span>
+                            <span className="text-teal-900">Rs.{userData?.isDepartureLunchRequired===YesNoType.Yes? userData?.groupSize * priceList.departureLunch : 0}/-</span>
                         </div>
                     </div>
                     <div className="mt-1">
                         <div className="flex items-center justify-between">
                             <span className="text-teal-900">Prasad during retreat</span>
-                            <span className="text-teal-900">Rs.{userData?.isFoodRequired ? userData?.groupSize * priceList.foodFees * getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 0}/-</span>
+                            <span className="text-teal-900">Rs.{userData?.isFoodRequired===YesNoType.Yes? userData?.groupSize * priceList.foodFees * getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 0}/-</span>
                         </div>
                     </div>
                     <div className="mt-1">
                         <div className="flex items-center justify-between">
                             <span className="text-teal-900">Accommodation</span>
-                            <span className="text-teal-900">Rs.{userData?.isAccommodationRequired ? roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price : 0}/-</span>
+                            <span className="text-teal-900">Rs.{userData?.isAccommodationRequired===YesNoType.Yes ? roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price : 0}/-</span>
                         </div>
                     </div>
 
@@ -750,10 +759,10 @@ export default function Home() {
                         <div className="flex items-center justify-between">
                             <span className="text-teal-900">Total Contribution</span>
                             <span className="text-teal-900">Rs. {
-                                (userData?.isArrivalLunchRequired ? userData?.groupSize * priceList.arrivalLunch : 0) +
-                                (userData?.isDepartureLunchRequired ? userData?.groupSize * priceList.departureLunch : 0) +
-                                (userData?.isFoodRequired ? userData?.groupSize * priceList.foodFees * getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 0) +
-                                (userData?.isAccommodationRequired ? roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price : 0)
+                                (userData?.isArrivalLunchRequired === YesNoType.Yes ? userData?.groupSize * priceList.arrivalLunch : 0) +
+                                (userData?.isDepartureLunchRequired === YesNoType.Yes ? userData?.groupSize * priceList.departureLunch : 0) +
+                                (userData?.isFoodRequired === YesNoType.Yes ? userData?.groupSize * priceList.foodFees * getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 0) +
+                                (userData?.isAccommodationRequired === YesNoType.Yes ? roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price : 0)
                             } /-</span>
                         </div>
                     </div>
@@ -768,10 +777,10 @@ export default function Home() {
                             <span className="text-teal-900">Final Contribution </span>
                             <span className="text-teal-900">Rs. {
                                 Math.round((
-                                    (userData?.isArrivalLunchRequired ? userData?.groupSize * priceList.arrivalLunch : 0) +
-                                    (userData?.isDepartureLunchRequired ? userData?.groupSize * priceList.departureLunch : 0) +
-                                    (userData?.isFoodRequired ? userData?.groupSize * priceList.foodFees * getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 0) +
-                                    (userData?.isAccommodationRequired ? roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price : 0)
+                                    (userData?.isArrivalLunchRequired === YesNoType.Yes ? userData?.groupSize * priceList.arrivalLunch : 0) +
+                                    (userData?.isDepartureLunchRequired === YesNoType.Yes ? userData?.groupSize * priceList.departureLunch : 0) +
+                                    (userData?.isFoodRequired === YesNoType.Yes ? userData?.groupSize * priceList.foodFees * getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 0) +
+                                    (userData?.isAccommodationRequired === YesNoType.Yes ? roomQuantity["2AB"] * slotList["2AB"]?.price + roomQuantity["3AB"] * slotList["3AB"]?.price + roomQuantity["4AB"] * slotList["4AB"]?.price + roomQuantity["6NAB"] * slotList["6NAB"]?.price : 0)
                                 ) * (100 - couponPct) / 100)
                             } /- </span>
                         </div>

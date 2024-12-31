@@ -19,6 +19,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
                 headers: { 'Content-Type': 'application/json' },
             });
         }
+        console.log(id);
         const formSubmission: IFormSubmission | null = await FormSubmission.findById(id);
 
         if (!formSubmission) {

@@ -129,7 +129,9 @@ const PersonalDetailsForm: React.FC<{//+
             <div className="mb-4">
                 <label className="block text-sm font-semibold text-teal-800">WhatsApp number (Country code followed by the number)*</label>
                 <input
-                    type="text"
+                    type="tel"
+                    pattern="^\+?\d{1,4}[-.\s]?\(?\d{1,3}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$" 
+                    title="Enter a valid phone number (e.g., 917048936838)"
                     name="whatsappNumber"
                     value={formData?.whatsappNumber}
                     onChange={(e) => handleChange(e, index)}

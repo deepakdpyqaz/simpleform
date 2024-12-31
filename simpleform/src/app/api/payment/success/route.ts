@@ -20,11 +20,11 @@ const MAIL_HTML = `
 const attachments = [
     {
         filename: "GRC_QRcode.pdf",
-        path: "./GRC_QRcode.pdf"
+        path: "./public/GRC_QRcode.pdf"
     },
     {
         filename: "Saranagati_Retreat_Brochure.pdf",
-        path: "./Saranagati_Retreat_Brochure.pdf"
+        path: "./public/Saranagati_Retreat_Brochure.pdf"
     }
 ]
 
@@ -50,8 +50,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const udf3 = body.get('udf3') || '';
         const udf4 = body.get('udf4') || '';
         const udf5 = body.get('udf5') || '';
-        if (key && txnid && amount && productinfo && productinfo && email && firstname && phone && status) {
-            const hash = generateReverseHash(key, txnid, amount, productinfo, firstname, email, status, udf1, udf2, udf3, udf4, udf5);
+        const additionalCharges = body.get('additionalCharges') || '';
+        if (key && txnid && amount && productinfo && productinfo && email && firstname && phone && status && bank_ref_num && status==="success") {
+            const hash = generateReverseHash(key, txnid, amount, productinfo, firstname, email, status, udf1, udf2, udf3, udf4, udf5, additionalCharges);
             if (hash !== receivedHash) {
                 throw new Error("Error in payment");
             }

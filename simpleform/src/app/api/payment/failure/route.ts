@@ -28,9 +28,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const udf3 = body.get('udf3') || '';
         const udf4 = body.get('udf4') || '';
         const udf5 = body.get('udf5') || '';
-        console.log(rawBody);
-        if (key && txnid && amount && productinfo && productinfo && email && firstname && phone && status) {
-            const hash = generateReverseHash(key, txnid, amount, productinfo, firstname, email, status, udf1, udf2, udf3, udf4, udf5);
+        const additionalCharges = body.get('additionalCharges') || '';
+        if (key && txnid && amount && productinfo && firstname && email && firstname && phone && status) {
+            const hash = generateReverseHash(key, txnid, amount, productinfo, firstname, email, status, udf1, udf2, udf3, udf4, udf5, additionalCharges);
             if (hash !== receivedHash) {
                 throw new Error("Error in payment");
             }
@@ -55,10 +55,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         } else {
             throw new Error("Error in payment");
         }
-        return NextResponse.redirect(new URL(`/payment/failure`,req.url));
+        return NextResponse.redirect(new URL(`/payment/failure`, req.url));
     } catch (error) {
         console.log(error);
-        return NextResponse.redirect(new URL(`/payment/failure`,req.url));
+        return NextResponse.redirect(new URL(`/payment/failure`, req.url));
     }
 
 }

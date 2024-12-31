@@ -4,8 +4,8 @@ const TransactionSchema = new Schema({
     txnid: {type: String, required: true},
     mihpayid: {type: String, required: true},
     status: {type: String, required: true},
-    mode: {type: String, required: true},
-    bank_ref_num: {type: String, required: true}
+    mode: {type: String, required: false},
+    bank_ref_num: {type: String, required: false}
 })
 
 type ITransaction = mongoose.InferSchemaType<typeof TransactionSchema>;
