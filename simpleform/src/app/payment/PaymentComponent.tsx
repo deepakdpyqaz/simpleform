@@ -104,12 +104,12 @@ export default function PaymentComponent() {
                         </tr>
                         <tr>
                             <td className="px-4 py-2 border-b">Discount</td>
-                            <td className="px-4 py-2 border-b">Rs.{paymentData?.coupon * (paymentData?.departureLunch + paymentData?.arrivalLunch + paymentData?.accommodation + paymentData?.food) / 100}/-</td>
+                            <td className="px-4 py-2 border-b">Rs.{paymentData?.coupon}/-</td>
                         </tr>
                     </tbody>
                 </table>
                 <div className="mb-8 mt-4">
-                    <label className="block text-xl font-semibold text-teal-800">Total Contributions: {paymentData?.totalCharges}</label>
+                    <label className="block text-xl font-semibold text-teal-800">Total Contributions: Rs.{paymentData?.totalCharges}/-</label>
                 </div>
             </div>
             <input type="hidden" name="key" value={paymentData?.key} />
