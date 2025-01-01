@@ -10,12 +10,14 @@
   },
   "dependencies": {
     "@types/mongoose": "^5.11.96",
+    "handlebars": "^4.7.8",
     "mongoose": "^8.9.2",
     "next": "15.1.2",
     "node-cache": "^5.1.2",
     "nodemailer": "^6.9.16",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20",

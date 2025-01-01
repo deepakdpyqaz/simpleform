@@ -289,20 +289,20 @@ export default function Home() {
                     : 0) +
                 (userData?.isFoodRequired === YesNoType.Yes
                     ? userData?.groupSize *
-                      priceList.foodFees *
-                      getDateDifferenceFromString(
-                          userData?.startDate,
-                          userData?.endDate,
-                      )
+                    priceList.foodFees *
+                    getDateDifferenceFromString(
+                        userData?.startDate,
+                        userData?.endDate,
+                    )
                     : 0) +
                 (userData?.isAccommodationRequired === YesNoType.Yes
                     ? roomQuantity["2AB"] * slotList["2AB"]?.price +
-                      roomQuantity["3AB"] * slotList["3AB"]?.price +
-                      roomQuantity["4AB"] * slotList["4AB"]?.price +
-                      roomQuantity["6NAB"] * slotList["6NAB"]?.price
+                    roomQuantity["3AB"] * slotList["3AB"]?.price +
+                    roomQuantity["4AB"] * slotList["4AB"]?.price +
+                    roomQuantity["6NAB"] * slotList["6NAB"]?.price
                     : 0)) *
                 (100 - couponPct)) /
-                100,
+            100,
         );
         personalDetails.forEach((personalDetail: PersonalDetails) => {
             if (!validatePhoneNumber(personalDetail.whatsappNumber)) {
@@ -331,8 +331,13 @@ export default function Home() {
                 setUserData(defaultUserData);
                 setPersonalDetails([]);
                 const body = await response.json();
-                const query = new URLSearchParams({ id: body.id }).toString();
-                router.push(`/payment?${query}`);
+                const isPaymentRequired = body?.isPaymentRequired || YesNoType.Yes;
+                if (isPaymentRequired == YesNoType.No) {
+                    router.push("/payment/success");
+                } else {
+                    const query = new URLSearchParams({ id: body.id }).toString();
+                    router.push(`/payment?${query}`);
+                }
             } else {
                 const errorData = await response.json();
                 setSubmitStatus(SubmitStatus.Failed);
@@ -802,7 +807,7 @@ export default function Home() {
                                     .filter((room) => {
                                         return !(
                                             userData.travelType ===
-                                                TravelType.Individual &&
+                                            TravelType.Individual &&
                                             room === BedType.AB4
                                         );
                                     })
@@ -843,7 +848,7 @@ export default function Home() {
                                                         <span className="mx-2 text-sm text-gray-600 font-mono w-[1ch] inline-block">
                                                             {
                                                                 roomQuantity[
-                                                                    room as BedType
+                                                                room as BedType
                                                                 ]
                                                             }
                                                         </span>
@@ -874,12 +879,12 @@ export default function Home() {
                                             {roomQuantity["2AB"] *
                                                 slotList["2AB"]?.price +
                                                 roomQuantity["3AB"] *
-                                                    slotList["3AB"]?.price +
+                                                slotList["3AB"]?.price +
                                                 roomQuantity["4AB"] *
-                                                    slotList["4AB"]?.price +
+                                                slotList["4AB"]?.price +
                                                 roomQuantity["6NAB"] *
-                                                    slotList["6NAB"]
-                                                        ?.price}{" "}
+                                                slotList["6NAB"]
+                                                    ?.price}{" "}
                                             /-
                                         </span>
                                     </div>
@@ -898,11 +903,10 @@ export default function Home() {
                                 personalDetails.map((personalDetail, index) => (
                                     <li key={index} className="cursor-pointer">
                                         <button
-                                            className={`px-4 py-2 ${
-                                                activeTab === index
-                                                    ? "text-white bg-teal-500 rounded-t-md"
-                                                    : "text-teal-700 hover:text-teal-500"
-                                            }`}
+                                            className={`px-4 py-2 ${activeTab === index
+                                                ? "text-white bg-teal-500 rounded-t-md"
+                                                : "text-teal-700 hover:text-teal-500"
+                                                }`}
                                             onClick={() =>
                                                 handleTabClick(index)
                                             }
@@ -998,13 +1002,31 @@ export default function Home() {
                     </div>
                     <div className="mt-1">
                         <div className="flex items-center justify-between">
+                            <span className="text-teal-900">Partial retreat</span>
+                            <span className="text-teal-900">
+                                Rs.
+                                {
+                                    userData?.isPartialRetreat === YesNoType.Yes ?
+                                        priceList.partialRetreatCharges *
+                                        userData?.groupSize *
+                                        getDateDifferenceFromString(
+                                            userData?.startDate,
+                                            userData?.endDate,
+                                        ) : 0
+                                }
+                                /-
+                            </span>
+                        </div>
+                    </div>
+                    <div className="mt-1">
+                        <div className="flex items-center justify-between">
                             <span className="text-teal-900">Arrival lunch</span>
                             <span className="text-teal-900">
                                 Rs.
                                 {userData?.isArrivalLunchRequired ===
-                                YesNoType.Yes
+                                    YesNoType.Yes
                                     ? userData?.groupSize *
-                                      priceList.arrivalLunch
+                                    priceList.arrivalLunch
                                     : 0}
                                 /-
                             </span>
@@ -1018,9 +1040,9 @@ export default function Home() {
                             <span className="text-teal-900">
                                 Rs.
                                 {userData?.isDepartureLunchRequired ===
-                                YesNoType.Yes
+                                    YesNoType.Yes
                                     ? userData?.groupSize *
-                                      priceList.departureLunch
+                                    priceList.departureLunch
                                     : 0}
                                 /-
                             </span>
@@ -1035,11 +1057,11 @@ export default function Home() {
                                 Rs.
                                 {userData?.isFoodRequired === YesNoType.Yes
                                     ? userData?.groupSize *
-                                      priceList.foodFees *
-                                      getDateDifferenceFromString(
-                                          userData?.startDate,
-                                          userData?.endDate,
-                                      )
+                                    priceList.foodFees *
+                                    getDateDifferenceFromString(
+                                        userData?.startDate,
+                                        userData?.endDate,
+                                    )
                                     : 0}
                                 /-
                             </span>
@@ -1051,15 +1073,15 @@ export default function Home() {
                             <span className="text-teal-900">
                                 Rs.
                                 {userData?.isAccommodationRequired ===
-                                YesNoType.Yes
+                                    YesNoType.Yes
                                     ? roomQuantity["2AB"] *
-                                          slotList["2AB"]?.price +
-                                      roomQuantity["3AB"] *
-                                          slotList["3AB"]?.price +
-                                      roomQuantity["4AB"] *
-                                          slotList["4AB"]?.price +
-                                      roomQuantity["6NAB"] *
-                                          slotList["6NAB"]?.price
+                                    slotList["2AB"]?.price +
+                                    roomQuantity["3AB"] *
+                                    slotList["3AB"]?.price +
+                                    roomQuantity["4AB"] *
+                                    slotList["4AB"]?.price +
+                                    roomQuantity["6NAB"] *
+                                    slotList["6NAB"]?.price
                                     : 0}
                                 /-
                             </span>
@@ -1073,34 +1095,43 @@ export default function Home() {
                             </span>
                             <span className="text-teal-900">
                                 Rs.{" "}
-                                {(userData?.isArrivalLunchRequired ===
-                                YesNoType.Yes
-                                    ? userData?.groupSize *
-                                      priceList.arrivalLunch
-                                    : 0) +
-                                    (userData?.isDepartureLunchRequired ===
-                                    YesNoType.Yes
+                                {(
+                                    userData?.isPartialRetreat === YesNoType.Yes ?
+                                        priceList.partialRetreatCharges *
+                                        userData?.groupSize *
+                                        getDateDifferenceFromString(
+                                            userData?.startDate,
+                                            userData?.endDate,
+                                        ) : 0
+                                ) +
+                                    (userData?.isArrivalLunchRequired ===
+                                        YesNoType.Yes
                                         ? userData?.groupSize *
-                                          priceList.departureLunch
+                                        priceList.arrivalLunch
+                                        : 0) +
+                                    (userData?.isDepartureLunchRequired ===
+                                        YesNoType.Yes
+                                        ? userData?.groupSize *
+                                        priceList.departureLunch
                                         : 0) +
                                     (userData?.isFoodRequired === YesNoType.Yes
                                         ? userData?.groupSize *
-                                          priceList.foodFees *
-                                          getDateDifferenceFromString(
-                                              userData?.startDate,
-                                              userData?.endDate,
-                                          )
+                                        priceList.foodFees *
+                                        getDateDifferenceFromString(
+                                            userData?.startDate,
+                                            userData?.endDate,
+                                        )
                                         : 0) +
                                     (userData?.isAccommodationRequired ===
-                                    YesNoType.Yes
+                                        YesNoType.Yes
                                         ? roomQuantity["2AB"] *
-                                              slotList["2AB"]?.price +
-                                          roomQuantity["3AB"] *
-                                              slotList["3AB"]?.price +
-                                          roomQuantity["4AB"] *
-                                              slotList["4AB"]?.price +
-                                          roomQuantity["6NAB"] *
-                                              slotList["6NAB"]?.price
+                                        slotList["2AB"]?.price +
+                                        roomQuantity["3AB"] *
+                                        slotList["3AB"]?.price +
+                                        roomQuantity["4AB"] *
+                                        slotList["4AB"]?.price +
+                                        roomQuantity["6NAB"] *
+                                        slotList["6NAB"]?.price
                                         : 0)}{" "}
                                 /-
                             </span>
@@ -1122,38 +1153,48 @@ export default function Home() {
                             <span className="text-teal-900">
                                 Rs.{" "}
                                 {Math.round(
-                                    (((userData?.isArrivalLunchRequired ===
-                                    YesNoType.Yes
-                                        ? userData?.groupSize *
-                                          priceList.arrivalLunch
-                                        : 0) +
-                                        (userData?.isDepartureLunchRequired ===
-                                        YesNoType.Yes
+                                    ((
+                                        (
+                                            userData?.isPartialRetreat === YesNoType.Yes ?
+                                                priceList.partialRetreatCharges *
+                                                userData?.groupSize *
+                                                getDateDifferenceFromString(
+                                                    userData?.startDate,
+                                                    userData?.endDate,
+                                                ) : 0
+                                        ) +
+                                        (userData?.isArrivalLunchRequired ===
+                                            YesNoType.Yes
                                             ? userData?.groupSize *
-                                              priceList.departureLunch
+                                            priceList.arrivalLunch
+                                            : 0) +
+                                        (userData?.isDepartureLunchRequired ===
+                                            YesNoType.Yes
+                                            ? userData?.groupSize *
+                                            priceList.departureLunch
                                             : 0) +
                                         (userData?.isFoodRequired ===
-                                        YesNoType.Yes
+                                            YesNoType.Yes
                                             ? userData?.groupSize *
-                                              priceList.foodFees *
-                                              getDateDifferenceFromString(
-                                                  userData?.startDate,
-                                                  userData?.endDate,
-                                              )
+                                            priceList.foodFees *
+                                            getDateDifferenceFromString(
+                                                userData?.startDate,
+                                                userData?.endDate,
+                                            )
                                             : 0) +
                                         (userData?.isAccommodationRequired ===
-                                        YesNoType.Yes
+                                            YesNoType.Yes
                                             ? roomQuantity["2AB"] *
-                                                  slotList["2AB"]?.price +
-                                              roomQuantity["3AB"] *
-                                                  slotList["3AB"]?.price +
-                                              roomQuantity["4AB"] *
-                                                  slotList["4AB"]?.price +
-                                              roomQuantity["6NAB"] *
-                                                  slotList["6NAB"]?.price
+                                            slotList["2AB"]?.price +
+                                            roomQuantity["3AB"] *
+                                            slotList["3AB"]?.price +
+                                            roomQuantity["4AB"] *
+                                            slotList["4AB"]?.price +
+                                            roomQuantity["6NAB"] *
+                                            slotList["6NAB"]?.price
                                             : 0)) *
                                         (100 - couponPct)) /
-                                        100,
+                                    100,
                                 )}{" "}
                                 /-{" "}
                             </span>

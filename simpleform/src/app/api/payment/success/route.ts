@@ -5,28 +5,7 @@ import FormSubmission, { IFormSubmission } from "../../models/FormSubmission";
 import Slot, { ISlot } from "../../models/Slot";
 import Transaction, { ITransaction } from "../../models/Transaction";
 import { AnyBulkWriteOperation } from "mongoose";
-import { MailOptions, sendEmail } from "../../utils/mailer";
-
-const MAIL_SUBJECT = "Registration confirmation for Saranagati Retreat (Feb 23 - Mar 1)";
-const MAIL_BODY = `
-Hare Krsna dear devotee,
-Please accept my humble obeisances. All glories to Srila Prabhupada.
-Thank you for registering for the Saranagati Retreat (Feb 23 - Mar 1)`
-const MAIL_HTML = `
-<p><strong>Hare Krsna dear devotee,</strong></p>
-<p>Please accept my humble obeisances. All glories to Srila Prabhupada.</p>
-<p>Thank you for registering for the Saranagati Retreat (Feb 23 - Mar 1)</p>
-`;
-const attachments = [
-    {
-        filename: "GRC_QRcode.pdf",
-        path: "./public/GRC_QRcode.pdf"
-    },
-    {
-        filename: "Saranagati_Retreat_Brochure.pdf",
-        path: "./public/Saranagati_Retreat_Brochure.pdf"
-    }
-]
+import { MailOptions, sendEmail, sendSuccessEmail } from "../../utils/mailer";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
@@ -51,7 +30,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const udf4 = body.get('udf4') || '';
         const udf5 = body.get('udf5') || '';
         const additionalCharges = body.get('additionalCharges') || '';
-        if (key && txnid && amount && productinfo && productinfo && email && firstname && phone && status && bank_ref_num && status==="success") {
+        if (key && txnid && amount && productinfo && productinfo && email && firstname && phone && status && bank_ref_num && status === "success") {
             const hash = generateReverseHash(key, txnid, amount, productinfo, firstname, email, status, udf1, udf2, udf3, udf4, udf5, additionalCharges);
             if (hash !== receivedHash) {
                 throw new Error("Error in payment");
@@ -70,14 +49,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 formSubmission.status = "success";
                 const transaction = new Transaction({ txnid, mihpayid, mode, status, bank_ref_num });
                 await Promise.all([Slot.bulkWrite(newSlots), formSubmission.save(), transaction.save()]);
-                const mailOptions: MailOptions = {
-                    to: formSubmission.email,
-                    subject: MAIL_SUBJECT,
-                    text: MAIL_BODY,
-                    html: MAIL_HTML,
-                    attachments: attachments
-                }
-                sendEmail(mailOptions);
+                sendSuccessEmail(formSubmission);
             }
             else {
                 throw new Error("Error in setting slots");
@@ -85,10 +57,23 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         } else {
             throw new Error("Error in payment");
         }
-        return NextResponse.redirect(new URL(`/payment/success`,req.url));
+        return NextResponse.redirect(new URL(`/payment/success`, req.url));
     } catch (error) {
         console.log(error);
-        return NextResponse.redirect(new URL(`/payment/failure`,req.url));
+        return NextResponse.redirect(new URL(`/payment/failure`, req.url));
     }
 
 }
+/* INFO: This is for debugging purposes only
+export async function GET(req: NextRequest): Promise<NextResponse>{
+    const formSubmission = new FormSubmission();
+    formSubmission._id = "123456";
+    formSubmission.email = "deepakdpynew@gmail.com";
+    formSubmission.groupSize = 3;
+    sendSuccessEmail(formSubmission);
+    return new NextResponse(JSON.stringify({ "message": "success" }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+    })
+}
+*/

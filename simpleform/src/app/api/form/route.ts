@@ -3,6 +3,9 @@ import connectToDatabase from "../lib/mongoose";
 import FormSubmission, { IFormSubmission } from "../models/FormSubmission";
 import Slot, { ISlot } from '../models/Slot';
 import { AnyBulkWriteOperation } from 'mongoose';
+import { YesNoType } from '@/app/constants';
+import { sendSuccessEmail } from '../utils/mailer';
+import * as XLSX from 'xlsx';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
@@ -21,11 +24,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           update: { $inc: { available: -reqSlots, hold: reqSlots } },
         }
       };
-    })
+    });
+    if (newSubmission.charges == 0) {
+      newSubmission.status = "success";
+    }
     const savedSubmission = await newSubmission.save();
     Slot.bulkWrite(newSlots); // Async call to not block user flow
-
-    return new NextResponse(JSON.stringify({ message: 'Form submitted succesfully', id: savedSubmission._id }), {
+    if (savedSubmission.charges == 0) {
+      sendSuccessEmail(savedSubmission);
+      return new NextResponse(JSON.stringify({ message: 'Form submitted succesfully', isPaymentRequired: YesNoType.No, id: savedSubmission._id }), {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return new NextResponse(JSON.stringify({ message: 'Form submitted succesfully', isPaymentRequired: YesNoType.Yes, id: savedSubmission._id }), {
       status: 201,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -37,4 +49,46 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
   }
 
+}
+
+
+export async function GET(req: NextRequest) {
+  await connectToDatabase();
+  const { searchParams } = new URL(req.url);
+  const credential = searchParams.get('credential');
+
+  // Check if the 'credential' matches the server-side valid credential
+  if (credential !== process.env.VALID_CREDENTIAL || 'vihe') {
+    // If the credential doesn't match, return 401 Unauthorized
+    return new NextResponse('Unauthorized', { status: 401 });
+  }
+
+  // Sample data to be included in the Excel file
+  const data = await FormSubmission.find({status:"success"});
+  const json_data = JSON.parse(JSON.stringify(data));
+  data.forEach((obj,idx)=>{
+    json_data[idx]["roomQuantity"] = JSON.stringify(obj.roomQuantity);
+    json_data[idx]["personalDetails"] = JSON.stringify(obj.personalDetails);
+  })
+  
+  // Create a new worksheet from the data
+  const ws = XLSX.utils.json_to_sheet(json_data);
+
+  // Create a new workbook and append the worksheet
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+  // Write the workbook to a buffer
+  const fileBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+  // Create a NextResponse with the file buffer
+  const response = new NextResponse(fileBuffer, {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': 'attachment; filename=submitted_forms.xlsx',
+    },
+  });
+
+  return response;
 }
