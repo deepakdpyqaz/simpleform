@@ -133,12 +133,6 @@ export default function Home() {
     useEffect(() => {
         if (userData.groupSize == null || userData.groupSize == undefined || userData.groupSize < 2) {
             setPersonalDetails([]);
-            if (userData.travelType === TravelType.Group) {
-                alert("Minimum 2 people for group booking");
-                setUserData(userData => {
-                    return { ...userData, groupSize: 2 } as UserData;
-                })
-            }
         }
         setPersonalDetails(personalDetails => {
             const personalDetailsCopy = [...personalDetails];
@@ -246,6 +240,10 @@ export default function Home() {
                 return false;
             }
         })
+        if(userData.travelType===TravelType.Group && defaultUserData.groupSize<2 || userData.groupSize>6){
+            alert("Group size should be between 2 and 6");
+            return;
+        }
         let body = { ...userData, personalDetails: personalDetails, charges: charges, discount: couponPct}
         try {
             setSubmitStatus(SubmitStatus.Pending);
@@ -401,7 +399,7 @@ export default function Home() {
                         </div> : null
                 }
                 <div className="mb-8">
-                    <label className="block text-sm font-semibold text-teal-800">Would you like to opt for a partial registration for the Sarnagati retreat?*</label>
+                    <label className="block text-sm font-semibold text-teal-800">Would you like to opt for a partial registration for the Sarnagati retreat? (Accommodation will not be provided for partial retreat)*</label>
                     <div className="mt-4 flex items-center gap-6">
                         <label className="flex items-center cursor-pointer">
                             <input

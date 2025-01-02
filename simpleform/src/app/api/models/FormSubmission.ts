@@ -9,7 +9,7 @@ const RoomQuantitySchema = new Schema({
   "6NAB": {type: "number", required: true, default: 0}
 })
 const PersonalDetailsSchema = new Schema({
-  devoteeName: { type: "string", required: true},
+  devoteeName: { type: "string", required: false, default: ''},
   name: { type: "string", required: true },
   dob: { type: "string", required: true },
   nationality: { type: "string", required: true },
