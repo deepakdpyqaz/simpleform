@@ -7,6 +7,8 @@ import { priceList, YesNoType } from '@/app/constants';
 import Slot, { ISlot } from '../models/Slot';
 import cache from '../utils/cache';
 import { generateHash } from "../utils/hashUtils";
+import { chargeCalculator } from '../utils/chargeUtils';
+
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
     try {
@@ -19,7 +21,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
                 headers: { 'Content-Type': 'application/json' },
             });
         }
-        console.log(id);
         const formSubmission: IFormSubmission | null = await FormSubmission.findById(id);
 
         if (!formSubmission) {
@@ -37,24 +38,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         else {
             slots = cachedSlots;
         }
-        const foodPrice = (formSubmission.isFoodRequired === YesNoType.Yes && formSubmission.startDate && formSubmission.endDate) ?
-            formSubmission.groupSize * priceList.foodFees * getDateDifferenceFromString(formSubmission.startDate, formSubmission.endDate)
-            : 0;
-
-        const accommodationPrice = (formSubmission.isPartialRetreat === YesNoType.No && formSubmission.isAccommodationRequired === YesNoType.Yes && formSubmission.roomQuantity != null && formSubmission.roomQuantity != undefined) ?
-            slots.reduce<number>((acc: number, slot: ISlot, idx: number, slotArr: ISlot[]): number => {
-                if (formSubmission.roomQuantity) {
-                    return acc + formSubmission.roomQuantity[slot.bedType] * slot.price;
-                }
-                return acc;
-            }, 0)
-            : 0;
-
-        const departureLunchPrice = formSubmission.isDepartureLunchRequired === YesNoType.Yes ? formSubmission.groupSize * priceList.departureLunch : 0;
-        const arrivalLunchPrice = formSubmission.isArrivalLunchRequired === YesNoType.Yes ? formSubmission.groupSize * priceList.arrivalLunch : 0;
-        const totalPrice = foodPrice + accommodationPrice + departureLunchPrice + arrivalLunchPrice;
-        const discount = formSubmission.discount ? totalPrice * formSubmission.discount / 100 : 0;
-        const finalPrice = totalPrice - discount;
+        const {foodPrice, partialRetreatPrice, accommodationPrice, departureLunchPrice, arrivalLunchPrice, totalPrice, discount, finalPrice} = await chargeCalculator(formSubmission);
         if (finalPrice !== formSubmission.charges) {
             return new NextResponse(JSON.stringify({ message: "Invalid payment details" }), {
                 status: 404,
@@ -72,6 +56,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
         const paymentData: PaymentData = {
             groupSize: formSubmission.groupSize,
+            partialRetreat: partialRetreatPrice,
             food: foodPrice,
             totalCharges: finalPrice,
             accommodation: accommodationPrice,

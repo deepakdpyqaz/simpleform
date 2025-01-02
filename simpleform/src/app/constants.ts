@@ -1,7 +1,8 @@
 const priceList = {
     foodFees: 100,
     arrivalLunch: 100,
-    departureLunch: 100
+    departureLunch: 100,
+    partialRetreatCharges: 600
 
 }
 enum AccommodationType {

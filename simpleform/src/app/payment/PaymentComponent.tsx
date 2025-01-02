@@ -7,6 +7,7 @@ import Loader from "../components/Loader";
 interface PaymentData {
     groupSize: number;
     accommodation: number;
+    partialRetreat: number;
     food: number;
     departureLunch: number;
     arrivalLunch: number;
@@ -25,6 +26,7 @@ interface PaymentData {
 const defaultPaymentData: PaymentData = {
     groupSize: 1,
     food: 0,
+    partialRetreat:0,
     totalCharges: 0,
     accommodation: 0,
     departureLunch: 0,
@@ -97,6 +99,10 @@ export default function PaymentComponent() {
                             <tr>
                                 <td className="px-4 py-2 border-b">Accommodation</td>
                                 <td className="px-4 py-2 border-b">Rs.{paymentData?.accommodation}/-</td>
+                            </tr>
+                            <tr>
+                                <td className="px-4 py-2 border-b">Partial Retreat Contribution</td>
+                                <td className="px-4 py-2 border-b">Rs.{paymentData?.partialRetreat}/-</td>
                             </tr>
                             <tr>
                                 <td className="px-4 py-2 border-b">Prasad during retreat</td>
