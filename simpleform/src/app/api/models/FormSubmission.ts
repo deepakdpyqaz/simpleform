@@ -14,7 +14,7 @@ const PersonalDetailsSchema = new Schema({
   dob: { type: "string", required: true },
   nationality: { type: "string", required: true },
   gender: { type: "string", required: false },
-  spiritualMaster: { type: "string", required: true },
+  spiritualMaster: { type: "string", required: false },
   findRetreat: {type: "string", required: false},
   startYear: { type: "string", required: true },
   address: { type: "string", required: true },
