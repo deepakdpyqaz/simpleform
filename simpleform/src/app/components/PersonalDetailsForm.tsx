@@ -165,7 +165,7 @@ const PersonalDetailsForm: React.FC<{//+
                 </div>
             </div>
             <div className="mb-4">
-                <label className="block text-sm font-semibold text-teal-800">Valid ID (AADHAR Card for Indians/Passport for non-indians)</label>
+                <label className="block text-sm font-semibold text-teal-800">Valid ID (AADHAR Card for Indians/Passport for non-indians)*</label>
                 <input
                     type="text"
                     name="idCopy"
