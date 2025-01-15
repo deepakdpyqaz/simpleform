@@ -43,8 +43,8 @@ enum YesNoType {
 }
 
 enum GenderType {
-    Male = "Male",
-    Female = "Female"
+    Male = "male",
+    Female = "female"
 }
 
 enum BedType {
