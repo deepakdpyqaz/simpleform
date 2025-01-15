@@ -38,17 +38,7 @@ const PersonalDetailsForm: React.FC<{//+
                     className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
                 />
             </div>
-            <div className="mb-4">
-                <label className="block text-sm font-semibold text-teal-800">Name (in passport/ID)*</label>
-                <input
-                    type="text"
-                    name="name"
-                    value={formData?.name}
-                    onChange={(e) => handleChange(e, index)}
-                    required
-                    className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
-                />
-            </div>
+
             <div className="mb-4">
                 <label className="block text-sm font-semibold text-teal-800">Date of Birth (dd-mmm-yyyy)*</label>
                 <input
@@ -71,19 +61,7 @@ const PersonalDetailsForm: React.FC<{//+
                     className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
                 />
             </div>
-            <div className="mb-4">
-                <label className="block text-sm font-semibold text-teal-800">Gender*</label>
-                <select
-                    name="gender"
-                    defaultValue={GenderType.Male}
-                    onChange={(e) => handleChange(e, index)}
-                    required
-                    className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
-                >
-                    <option className="text-sm text-teal-800" value={GenderType.Male}>Male</option>
-                    <option className="text-sm text-teal-800" value={GenderType.Female}>Female</option>
-                </select>
-            </div>
+
             <div className="mb-4">
                 <label className="block text-sm font-semibold text-teal-800">Initiating Spiritual Master</label>
                 <input

@@ -15,13 +15,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const slots: ISlot[] = await Slot.find({});
     const newSlots: AnyBulkWriteOperation[] = slots.map((slot: ISlot, idx: number) => {
       let reqSlots = newSubmission.roomQuantity[slot.bedType] || 0;
-      if (slot.available < reqSlots) {
+      if (slot.neutralSpotsAvailable + (
+        newSubmission.personalDetails[0].gender === "male" ? slot.maleSpotsAvailable : slot.femaleSpotsAvailable
+      ) < reqSlots) {
         throw new Error("Spot not available");
       }
       return {
         updateMany: {
           filter: { bedType: slot.bedType },
-          update: { $inc: { available: -reqSlots, hold: reqSlots } },
+          update: { $inc: { neutralSpotsAvailable: -reqSlots, hold: reqSlots } },
         }
       };
     });
@@ -64,13 +66,13 @@ export async function GET(req: NextRequest) {
   }
 
   // Sample data to be included in the Excel file
-  const data = await FormSubmission.find({status:"success"});
+  const data = await FormSubmission.find({ status: "success" });
   const json_data = JSON.parse(JSON.stringify(data));
-  data.forEach((obj,idx)=>{
+  data.forEach((obj, idx) => {
     json_data[idx]["roomQuantity"] = JSON.stringify(obj.roomQuantity);
     json_data[idx]["personalDetails"] = JSON.stringify(obj.personalDetails);
   })
-  
+
   // Create a new worksheet from the data
   const ws = XLSX.utils.json_to_sheet(json_data);
 

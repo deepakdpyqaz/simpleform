@@ -7,6 +7,9 @@ import {
     BedType,
     OperationType,
     SubmitStatus,
+    RegistrationType,
+    FoodType,
+    GenderType,
 } from "./constants";
 import { ISlot } from "./api/models/Slot";
 import React, { useState, useEffect } from "react";
@@ -32,10 +35,12 @@ interface UserData {
     email: string;
     groupSize: number;
     travelType: TravelType | null;
+    registrationType: RegistrationType | null;
     isAccommodationRequired: YesNoType | null;
     roomQuantity: RoomQuantity | null;
     isFoodRequired: YesNoType | null;
     isPartialRetreat: YesNoType | null;
+    foodType: FoodType | null;
     startDate: string | undefined;
     endDate: string | undefined;
     isArrivalLunchRequired: YesNoType | null;
@@ -49,11 +54,13 @@ interface UserData {
 const defaultUserData: UserData = {
     email: "",
     groupSize: 1,
-    travelType: null,
+    travelType: TravelType.Individual,
+    registrationType: null,
     isAccommodationRequired: null,
     roomQuantity: defaultRoomQuantity,
     isFoodRequired: null,
     isPartialRetreat: null,
+    foodType: null,
     startDate: "2025-02-23",
     endDate: "2025-03-01",
     isArrivalLunchRequired: null,
@@ -112,7 +119,7 @@ export default function Home() {
     const router = useRouter();
     const [userData, setUserData] = useState<UserData>(defaultUserData);
     const [personalDetails, setPersonalDetails] = useState<PersonalDetails[]>(
-        [],
+        [defaultPersonalDetails],
     );
     const [submitStatus, setSubmitStatus] = useState<SubmitStatus>(
         SubmitStatus.InProgress,
@@ -123,16 +130,18 @@ export default function Home() {
     const [couponPct, setCouponPct] = useState<number>(0);
     const fetchSlots = async () => {
         try {
-            const res = await fetch("/api/slot", { cache: "reload" });
-            const slots: ISlot[] = (await res.json())?.slots as ISlot[];
-            const bedPriceList = slots.reduce((acc, slot) => {
-                acc[slot.bedType] = {
-                    price: slot?.price,
-                    available: slot?.available,
-                };
-                return acc;
-            }, {} as Slot);
-            setSlotList(bedPriceList);
+            if (personalDetails[0].gender === GenderType.Male || personalDetails[0].gender === GenderType.Female) {
+                const res = await fetch("/api/slot");
+                const slots: ISlot[] = (await res.json())?.slots as ISlot[];
+                const bedPriceList = slots.reduce((acc, slot) => {
+                    acc[slot.bedType] = {
+                        price: priceList["FRWA"][slot?.bedType],
+                        available: slot?.neutralSpotsAvailable + (personalDetails[0].gender === GenderType.Male?slot?.maleSpotsAvailable: slot?.femaleSpotsAvailable),
+                    };
+                    return acc;
+                }, {} as Slot);
+                setSlotList(bedPriceList);
+            }
         } catch (error) {
             console.error(error);
             alert("Error in fetching slot list");
@@ -227,7 +236,7 @@ export default function Home() {
     }, [userData.startDate, userData.endDate]);
     useEffect(() => {
         fetchSlots();
-    }, []);
+    }, [personalDetails[0].gender]);
     const handleChange = (
         e:
             | React.ChangeEvent<HTMLInputElement>
@@ -283,7 +292,7 @@ export default function Home() {
                     : 0) +
                 (userData?.isFoodRequired === YesNoType.Yes
                     ? userData?.groupSize *
-                    priceList.foodFees *
+                    priceList["PR"].foodFees["REGULAR"] *
                     getDateDifferenceFromString(
                         userData?.startDate,
                         userData?.endDate,
@@ -304,11 +313,11 @@ export default function Home() {
                 return false;
             }
         })
-        if(userData.travelType===TravelType.Group && defaultUserData.groupSize<2 || userData.groupSize>6){
+        if (userData.travelType === TravelType.Group && defaultUserData.groupSize < 2 || userData.groupSize > 6) {
             alert("Group size should be between 2 and 6");
             return;
         }
-        let body = { ...userData, personalDetails: personalDetails, charges: charges, discount: couponPct}
+        let body = { ...userData, personalDetails: personalDetails, charges: charges, discount: couponPct }
         try {
             setSubmitStatus(SubmitStatus.Pending);
             const response = await fetch("/api/form", {
@@ -422,350 +431,97 @@ export default function Home() {
                 onSubmit={handleSubmit}
                 className="bg-white shadow-2xl rounded-xl p-8 max-w-lg mx-auto border border-teal-300"
             >
-                <div className="mb-8">
-                    <label
-                        htmlFor="email"
-                        className="block text-sm font-semibold text-teal-800"
-                    >
-                        Email*
-                    </label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        required
-                        onChange={handleChange}
-                        value={userData?.email}
-                        className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
-                    />
-                </div>
-
-                <div className="mb-8">
-                    <label className="block text-sm font-semibold text-teal-800">
-                        Are you registering for an individual or group?*
-                    </label>
-                    <div className="mt-4 flex items-center gap-6">
-                        <label className="flex items-center cursor-pointer">
-                            <input
-                                type="radio"
-                                name="travelType"
-                                value={TravelType.Individual}
-                                checked={
-                                    userData?.travelType ===
-                                    TravelType.Individual
-                                }
-                                required
-                                onChange={handleChange}
-                                className="text-teal-500 focus:ring-teal-500"
-                            />
-                            <span className="ml-2 text-teal-700">
-                                Individual
-                            </span>
-                        </label>
-                        <label className="flex items-center cursor-pointer">
-                            <input
-                                type="radio"
-                                name="travelType"
-                                value={TravelType.Group}
-                                onChange={handleChange}
-                                checked={
-                                    userData?.travelType === TravelType.Group
-                                }
-                                className="text-teal-500 focus:ring-teal-500"
-                            />
-                            <span className="ml-2 text-teal-700">Group</span>
-                        </label>
-                    </div>
-                </div>
-                {userData?.travelType === TravelType.Group ? (
-                    <div id="group-registration" className="mb-8">
-                        <label
-                            htmlFor="group-size"
-                            className="block text-sm font-semibold text-teal-800"
-                        >
-                            Number of group members (2-6)
-                        </label>
+                <div className="container mx-auto px-4 py-3 my-2 bg-gray-200">
+                    <div className="mb-8">
+                        <label className="block text-sm font-semibold text-teal-800">Name (in passport/ID)*</label>
                         <input
-                            type="number"
-                            id="group-size"
-                            name="groupSize"
-                            value={userData?.groupSize}
-                            onChange={handleChange}
+                            type="text"
+                            name="name"
+                            value={personalDetails[0]?.name}
+                            onChange={(e) => handlePersonalDetailsChange(e, 0)}
+                            required
                             className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
                         />
                     </div>
-                ) : null}
-                <div className="mb-8">
-                    <label className="block text-sm font-semibold text-teal-800">Would you like to opt for a partial registration for the Sarnagati retreat? (Accommodation will not be provided for partial retreat)*</label>
-                    <div className="mt-4 flex items-center gap-6">
-                        <label className="flex items-center cursor-pointer">
-                            <input
-                                type="radio"
-                                name="isPartialRetreat"
-                                value={YesNoType.Yes}
-                                required
-                                checked={
-                                    userData?.isPartialRetreat === YesNoType.Yes
-                                }
-                                onChange={handleChange}
-                                className="text-teal-500 focus:ring-teal-500"
-                            />
-                            <span className="ml-2 text-teal-700">Yes</span>
+                    <div className="mb-8">
+                        <label
+                            htmlFor="email"
+                            className="block text-sm font-semibold text-teal-800"
+                        >
+                            Email*
                         </label>
-                        <label className="flex items-center cursor-pointer">
-                            <input
-                                type="radio"
-                                name="isPartialRetreat"
-                                value={YesNoType.No}
-                                checked={
-                                    userData?.isPartialRetreat === YesNoType.No
-                                }
-                                onChange={handleChange}
-                                className="text-teal-500 focus:ring-teal-500"
-                            />
-                            <span className="ml-2 text-teal-700">No</span>
-                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
+                            onChange={handleChange}
+                            value={userData?.email}
+                            className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
+                        />
                     </div>
-                </div>
-                {userData?.isPartialRetreat === YesNoType.Yes ? (
-                    <>
-                        <div className="mb-8 flex flex-col sm:flex-row gap-6">
-                            <div className="flex-1">
-                                <label className="block text-sm font-semibold text-teal-800">
-                                    Start Date*
-                                </label>
+                    <div className="mb-8">
+                        <label className="block text-sm font-semibold text-teal-800">Gender*</label>
+                        <select
+                            name="gender"
+                            defaultValue={GenderType.Male}
+                            onChange={(e) => handlePersonalDetailsChange(e, 0)}
+                            required
+                            className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
+                        >
+                            <option className="text-sm text-teal-800" value={GenderType.Male}>Male</option>
+                            <option className="text-sm text-teal-800" value={GenderType.Female}>Female</option>
+                        </select>
+                    </div>
+
+                    <div className="">
+                        <label className="block text-sm font-semibold text-teal-800">What type of registration would you like to opt for retreat? (Accommodation will not be provided for partial retreat)*</label>
+                        <div className="mt-4 flex flex-wrap items-center gap-6">
+                            <label className="flex items-center cursor-pointer">
                                 <input
-                                    type="date"
-                                    name="startDate"
-                                    value={userData?.startDate}
-                                    onChange={handleChange}
+                                    type="radio"
+                                    name="registrationType"
+                                    value={RegistrationType.FRWA}
                                     required
-                                    className="mt-2 px-3 py-2 border border-teal-500 rounded-md w-full"
-                                />
-                            </div>
-                            <div className="flex-1">
-                                <label className="block text-sm font-semibold text-teal-800">
-                                    End Date*
-                                </label>
-                                <input
-                                    type="date"
-                                    name="endDate"
-                                    value={userData?.endDate}
+                                    checked={
+                                        userData?.registrationType === RegistrationType.FRWA
+                                    }
                                     onChange={handleChange}
-                                    required
-                                    className="mt-2 px-3 py-2 border border-teal-500 rounded-md w-full"
+                                    className="text-teal-500 focus:ring-teal-500"
                                 />
-                            </div>
-                        </div>
-                        <div className="mb">
-                            <div className="flex items-center justify-between">
-                                <span className="mt-2 text-teal-800">
-                                    Contribution: Rs.{" "}
-                                    {priceList.partialRetreatCharges *
-                                        userData?.groupSize *
-                                        getDateDifferenceFromString(
-                                            userData?.startDate,
-                                            userData?.endDate,
-                                        )}{" "}
-                                    /-
-                                </span>
-                            </div>
-                        </div>
-                    </>
-                ) : null}
-                <div className="mb-8">
-                    <label className="block text-sm font-semibold text-teal-800">
-                        Do you require prasad during retreat? (Rs.{" "}
-                        {priceList.foodFees}/- per day per person)*
-                    </label>
-                    <div className="mt-4 flex items-center gap-6">
-                        <label className="flex items-center cursor-pointer">
-                            <input
-                                type="radio"
-                                name="isFoodRequired"
-                                value={YesNoType.Yes}
-                                required
-                                checked={
-                                    userData?.isFoodRequired === YesNoType.Yes
-                                }
-                                onChange={handleChange}
-                                className="text-teal-500 focus:ring-teal-500"
-                            />
-                            <span className="ml-2 text-teal-700">Yes</span>
-                        </label>
-                        <label className="flex items-center cursor-pointer">
-                            <input
-                                type="radio"
-                                name="isFoodRequired"
-                                value={YesNoType.No}
-                                checked={
-                                    userData?.isFoodRequired === YesNoType.No
-                                }
-                                onChange={handleChange}
-                                className="text-teal-500 focus:ring-teal-500"
-                            />
-                            <span className="ml-2 text-teal-700">No</span>
-                        </label>
-                    </div>
-                    {userData?.isFoodRequired === YesNoType.Yes ? (
-                        <div className="mt">
-                            <div className="flex items-center justify-between">
-                                <span className="mt-2 text-teal-800">
-                                    Contribution: Rs.{" "}
-                                    {priceList.foodFees *
-                                        userData?.groupSize *
-                                        getDateDifferenceFromString(
-                                            userData?.startDate,
-                                            userData?.endDate,
-                                        )}{" "}
-                                    /-
-                                </span>
-                            </div>
-                        </div>
-                    ) : null}
-                </div>
-                <div className="mb-8">
-                    <label className="block text-sm font-semibold text-teal-800">
-                        Do you require lunch on the day of arrival?(Rs.{" "}
-                        {priceList.arrivalLunch} /- per person) *
-                    </label>
-                    <div className="mt-4 flex items-center gap-6">
-                        <label className="flex items-center cursor-pointer">
-                            <input
-                                type="radio"
-                                name="isArrivalLunchRequired"
-                                value={YesNoType.Yes}
-                                required
-                                checked={
-                                    userData?.isArrivalLunchRequired ===
-                                    YesNoType.Yes
-                                }
-                                onChange={handleChange}
-                                className="text-teal-500 focus:ring-teal-500"
-                            />
-                            <span className="ml-2 text-teal-700">Yes</span>
-                        </label>
-                        <label className="flex items-center cursor-pointer">
-                            <input
-                                type="radio"
-                                name="isArrivalLunchRequired"
-                                value={YesNoType.No}
-                                checked={
-                                    userData?.isArrivalLunchRequired ===
-                                    YesNoType.No
-                                }
-                                onChange={handleChange}
-                                className="text-teal-500 focus:ring-teal-500"
-                            />
-                            <span className="ml-2 text-teal-700">No</span>
-                        </label>
-                    </div>
-                    {userData?.isArrivalLunchRequired === YesNoType.Yes ? (
-                        <div className="mt">
-                            <div className="flex items-center justify-between">
-                                <span className="mt-2 text-teal-800">
-                                    Contribution: Rs.{" "}
-                                    {priceList.arrivalLunch *
-                                        userData?.groupSize}{" "}
-                                    /-
-                                </span>
-                            </div>
-                        </div>
-                    ) : null}
-                </div>
-                <div className="mb-8">
-                    <label className="block text-sm font-semibold text-teal-800">
-                        Do you require lunch on the day of departure? (Rs.{" "}
-                        {priceList.departureLunch} /- per person)*
-                    </label>
-                    <div className="mt-4 flex items-center gap-6">
-                        <label className="flex items-center cursor-pointer">
-                            <input
-                                type="radio"
-                                name="isDepartureLunchRequired"
-                                value={YesNoType.Yes}
-                                required
-                                checked={
-                                    userData?.isDepartureLunchRequired ===
-                                    YesNoType.Yes
-                                }
-                                onChange={handleChange}
-                                className="text-teal-500 focus:ring-teal-500"
-                            />
-                            <span className="ml-2 text-teal-700">Yes</span>
-                        </label>
-                        <label className="flex items-center cursor-pointer">
-                            <input
-                                type="radio"
-                                name="isDepartureLunchRequired"
-                                value={YesNoType.No}
-                                checked={
-                                    userData?.isDepartureLunchRequired ===
-                                    YesNoType.No
-                                }
-                                onChange={handleChange}
-                                className="text-teal-500 focus:ring-teal-500"
-                            />
-                            <span className="ml-2 text-teal-700">No</span>
-                        </label>
-                    </div>
-                    {userData?.isDepartureLunchRequired === YesNoType.Yes ? (
-                        <div className="mt">
-                            <div className="flex items-center justify-between">
-                                <span className="mt-2 text-teal-800">
-                                    Contribution: Rs.{" "}
-                                    {priceList.departureLunch *
-                                        userData?.groupSize}{" "}
-                                    /-
-                                </span>
-                            </div>
-                        </div>
-                    ) : null}
-                </div>
-                {userData?.isPartialRetreat === YesNoType.No ? (
-                    <>
-                        <div className="mb-8">
-                            <label className="block text-sm font-semibold text-teal-800">
-                                Do you require accommodation?*
+                                <span className="ml-2 text-teal-700">Full registration with accommodation</span>
                             </label>
-                            <div className="mt-4 flex items-center gap-6">
-                                <label className="flex items-center cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="isAccommodationRequired"
-                                        value={YesNoType.Yes}
-                                        required
-                                        checked={
-                                            userData?.isAccommodationRequired ===
-                                            YesNoType.Yes
-                                        }
-                                        onChange={handleChange}
-                                        className="text-teal-500 focus:ring-teal-500"
-                                    />
-                                    <span className="ml-2 text-teal-700">
-                                        Yes
-                                    </span>
-                                </label>
-                                <label className="flex items-center cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="isAccommodationRequired"
-                                        value={YesNoType.No}
-                                        checked={
-                                            userData?.isAccommodationRequired ===
-                                            YesNoType.No
-                                        }
-                                        onChange={handleChange}
-                                        className="text-teal-500 focus:ring-teal-500"
-                                    />
-                                    <span className="ml-2 text-teal-700">
-                                        No
-                                    </span>
-                                </label>
-                            </div>
+                            <label className="flex items-center cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="registrationType"
+                                    value={RegistrationType.FRWOA}
+                                    checked={
+                                        userData?.registrationType === RegistrationType.FRWOA
+                                    }
+                                    onChange={handleChange}
+                                    className="text-teal-500 focus:ring-teal-500"
+                                />
+                                <span className="ml-2 text-teal-700">Full registration without accommodation</span>
+                            </label>
+                            <label className="flex items-center cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="registrationType"
+                                    value={RegistrationType.PR}
+                                    checked={
+                                        userData?.registrationType === RegistrationType.PR
+                                    }
+                                    onChange={handleChange}
+                                    className="text-teal-500 focus:ring-teal-500"
+                                />
+                                <span className="ml-2 text-teal-700">Partial registration</span>
+                            </label>
                         </div>
-                        {userData?.isAccommodationRequired === YesNoType.Yes ? (
-                            <div id="accommodation-options" className="mb-8">
+                    </div>
+                    {userData?.registrationType === RegistrationType.FRWA ? (
+                        <div className="container mx-auto px-4 py-3 my-2 bg-gray-200">
+                            <div id="accommodation-options" className="">
                                 <label
                                     htmlFor="accommodation-type"
                                     className="block text-sm font-semibold text-teal-800"
@@ -880,9 +636,176 @@ export default function Home() {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    ) : null}
+                    {userData?.registrationType === RegistrationType.PR ?
+                        <>
+                            <div className="mb-2 mt-1 flex flex-col sm:flex-row gap-6">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-semibold text-teal-800">
+                                        Start Date*
+                                    </label>
+                                    <input
+                                        type="date"
+                                        name="startDate"
+                                        value={userData?.startDate}
+                                        onChange={handleChange}
+                                        required
+                                        className="mt-2 px-3 py-2 border border-teal-500 rounded-md w-full"
+                                    />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-sm font-semibold text-teal-800">
+                                        End Date*
+                                    </label>
+                                    <input
+                                        type="date"
+                                        name="endDate"
+                                        value={userData?.endDate}
+                                        onChange={handleChange}
+                                        required
+                                        className="mt-2 px-3 py-2 border border-teal-500 rounded-md w-full"
+                                    />
+                                </div>
+                            </div>
+                            <div className="mb">
+                                <div className="flex items-center justify-between">
+                                    <span className="mt-2 text-teal-800">
+                                        Contribution: Rs.{" "}
+                                        {priceList["PR"].partialRegistrationCharges *
+                                            userData?.groupSize *
+                                            getDateDifferenceFromString(
+                                                userData?.startDate,
+                                                userData?.endDate,
+                                            )}{" "}
+                                        /-
+                                    </span>
+                                </div>
+                            </div>
+                        </>
+                        : null}
+                </div>
+                <div className="container mx-auto px-4 py-3 my-2 bg-gray-200">
+                    <div className="mb-4 mt-2">
+                        <label className="block text-sm font-semibold text-teal-800">Prasadam preferences?*</label>
+                        <select
+                            name="foodType"
+                            defaultValue={userData?.registrationType === RegistrationType.PR ? FoodType.NONE : FoodType.REGULAR}
+                            onChange={handleChange}
+                            required
+                            className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
+                        >
+                            <option value={FoodType.REGULAR}>Regular</option>
+                            <option value={FoodType.GLUTEN_FREE}>Glutten Free</option>
+                            <option value={FoodType.VEGAN}>Vegan</option>
+                            {userData?.registrationType !== RegistrationType.FRWA ?
+                                <option value={FoodType.NONE}>None</option>
+                                : null}
+
+                        </select>
+                    </div>
+
+                    <div className="mb-8">
+                        <label className="block text-sm font-semibold text-teal-800">
+                            Do you require lunch on the day of arrival? (Rs.{" "}
+                            {priceList.arrivalLunch} /- per person) *
+                        </label>
+                        <div className="mt-4 flex items-center gap-6">
+                            <label className="flex items-center cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="isArrivalLunchRequired"
+                                    value={YesNoType.Yes}
+                                    required
+                                    checked={
+                                        userData?.isArrivalLunchRequired ===
+                                        YesNoType.Yes
+                                    }
+                                    onChange={handleChange}
+                                    className="text-teal-500 focus:ring-teal-500"
+                                />
+                                <span className="ml-2 text-teal-700">Yes</span>
+                            </label>
+                            <label className="flex items-center cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="isArrivalLunchRequired"
+                                    value={YesNoType.No}
+                                    checked={
+                                        userData?.isArrivalLunchRequired ===
+                                        YesNoType.No
+                                    }
+                                    onChange={handleChange}
+                                    className="text-teal-500 focus:ring-teal-500"
+                                />
+                                <span className="ml-2 text-teal-700">No</span>
+                            </label>
+                        </div>
+                        {userData?.isArrivalLunchRequired === YesNoType.Yes ? (
+                            <div className="mt">
+                                <div className="flex items-center justify-between">
+                                    <span className="mt-2 text-teal-800">
+                                        Contribution: Rs.{" "}
+                                        {priceList.arrivalLunch *
+                                            userData?.groupSize}{" "}
+                                        /-
+                                    </span>
+                                </div>
+                            </div>
                         ) : null}
-                    </>
-                ) : null}
+                    </div>
+                    <div className="mb-8">
+                        <label className="block text-sm font-semibold text-teal-800">
+                            Do you require lunch on the day of departure? (Rs.{" "}
+                            {priceList.departureLunch}/- per person)*
+                        </label>
+                        <div className="mt-4 flex items-center gap-6">
+                            <label className="flex items-center cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="isDepartureLunchRequired"
+                                    value={YesNoType.Yes}
+                                    required
+                                    checked={
+                                        userData?.isDepartureLunchRequired ===
+                                        YesNoType.Yes
+                                    }
+                                    onChange={handleChange}
+                                    className="text-teal-500 focus:ring-teal-500"
+                                />
+                                <span className="ml-2 text-teal-700">Yes</span>
+                            </label>
+                            <label className="flex items-center cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="isDepartureLunchRequired"
+                                    value={YesNoType.No}
+                                    checked={
+                                        userData?.isDepartureLunchRequired ===
+                                        YesNoType.No
+                                    }
+                                    onChange={handleChange}
+                                    className="text-teal-500 focus:ring-teal-500"
+                                />
+                                <span className="ml-2 text-teal-700">No</span>
+                            </label>
+                        </div>
+                        {userData?.isDepartureLunchRequired === YesNoType.Yes ? (
+                            <div className="mt">
+                                <div className="flex items-center justify-between">
+                                    <span className="mt-2 text-teal-800">
+                                        Contribution: Rs.{" "}
+                                        {priceList.departureLunch *
+                                            userData?.groupSize}{" "}
+                                        /-
+                                    </span>
+                                </div>
+                            </div>
+                        ) : null}
+                    </div>
+
+                </div>
+
                 <div className="container mx-auto px-4 py-8 bg-gray-100 min-h-screen">
                     <label className="block text-sm font-semibold text-teal-800">
                         Enter personal details*
@@ -997,7 +920,7 @@ export default function Home() {
                                 Rs.
                                 {
                                     userData?.isPartialRetreat === YesNoType.Yes ?
-                                        priceList.partialRetreatCharges *
+                                        priceList["PR"].partialRegistrationCharges *
                                         userData?.groupSize *
                                         getDateDifferenceFromString(
                                             userData?.startDate,
@@ -1047,7 +970,7 @@ export default function Home() {
                                 Rs.
                                 {userData?.isFoodRequired === YesNoType.Yes
                                     ? userData?.groupSize *
-                                    priceList.foodFees *
+                                    priceList["PR"].foodFees["REGULAR"] *
                                     getDateDifferenceFromString(
                                         userData?.startDate,
                                         userData?.endDate,
@@ -1087,7 +1010,7 @@ export default function Home() {
                                 Rs.{" "}
                                 {(
                                     userData?.isPartialRetreat === YesNoType.Yes ?
-                                        priceList.partialRetreatCharges *
+                                        priceList["PR"].partialRegistrationCharges *
                                         userData?.groupSize *
                                         getDateDifferenceFromString(
                                             userData?.startDate,
@@ -1106,7 +1029,7 @@ export default function Home() {
                                         : 0) +
                                     (userData?.isFoodRequired === YesNoType.Yes
                                         ? userData?.groupSize *
-                                        priceList.foodFees *
+                                        priceList["PR"].foodFees["REGULAR"] *
                                         getDateDifferenceFromString(
                                             userData?.startDate,
                                             userData?.endDate,
@@ -1146,7 +1069,7 @@ export default function Home() {
                                     ((
                                         (
                                             userData?.isPartialRetreat === YesNoType.Yes ?
-                                                priceList.partialRetreatCharges *
+                                                priceList["PR"].partialRegistrationCharges *
                                                 userData?.groupSize *
                                                 getDateDifferenceFromString(
                                                     userData?.startDate,
@@ -1166,7 +1089,7 @@ export default function Home() {
                                         (userData?.isFoodRequired ===
                                             YesNoType.Yes
                                             ? userData?.groupSize *
-                                            priceList.foodFees *
+                                            priceList["PR"].foodFees["REGULAR"] *
                                             getDateDifferenceFromString(
                                                 userData?.startDate,
                                                 userData?.endDate,

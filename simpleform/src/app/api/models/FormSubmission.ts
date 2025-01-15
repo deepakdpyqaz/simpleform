@@ -1,4 +1,4 @@
-import { AccommodationType, GenderType, TravelType, YesNoType } from "@/app/constants";
+import { AccommodationType, GenderType, RegistrationType, TravelType, YesNoType } from "@/app/constants";
 import {PersonalDetails} from "@/app/components/PersonalDetailsForm";
 import mongoose, { Schema, model, models } from "mongoose";
 
@@ -28,12 +28,14 @@ const PersonalDetailsSchema = new Schema({
 })
 const FormSubmissionSchema = new Schema({
   email: { type: String, required: true },
-  groupSize: { type: Number, required: true },
-  travelType: {type: String, required: false},
-  isAccommodationRequired: {type: String, required:true},
-  roomQuantity: {type: RoomQuantitySchema, required: false},
-  isFoodRequired: {type: String, required: false},
-  isPartialRetreat: {type: String, required: false},
+  groupSize: { type: Number, required: true, default: 1 },
+  travelType: {type: String, required: false, default: "Individual"},
+  registrationType: { type: String, required: true},
+  isAccommodationRequired: {type: String, required:true, default: "No"},
+  roomQuantity: {type: RoomQuantitySchema, required: false },
+  isFoodRequired: {type: String, required: false, default: "No"},
+  isPartialRetreat: {type: String, required: false, default: "No"},
+  foodType: {type: String, required: false, default: "NONE"},
   startDate: { type: String, required: false },
   endDate: { type: String, required: false },
   isArrivalLunchRequired: {type: String, required: false},
