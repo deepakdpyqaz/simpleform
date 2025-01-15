@@ -39,7 +39,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             if (formSubmission != null && slots != null) {
                 const newSlots: AnyBulkWriteOperation[] = slots.map((slot: ISlot, idx: number) => {
                     let reqSlots = formSubmission && formSubmission.roomQuantity ? formSubmission.roomQuantity[slot.bedType] : 0;
-                    let gender = formSubmission.personDetails[0].gender;
+                    let gender = formSubmission.personalDetails[0].gender;
                     if (gender === "male") {
                             return {
                                 updateMany: {
@@ -71,10 +71,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         } else {
             throw new Error("Error in payment");
         }
-        return NextResponse.redirect(new URL(`/payment/success`, req.url));
+        return NextResponse.redirect(new URL(`/payment/success`, req.url),303);
     } catch (error) {
         console.log(error);
-        return NextResponse.redirect(new URL(`/payment/failure`, req.url));
+        return NextResponse.redirect(new URL(`/payment/failure`, req.url),303);
     }
 
 }
