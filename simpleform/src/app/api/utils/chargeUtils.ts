@@ -1,4 +1,4 @@
-import { priceList, YesNoType } from "@/app/constants";
+import { priceList, RegistrationType, YesNoType } from "@/app/constants";
 import Slot, { ISlot } from "../models/Slot";
 import cache from "./cache";
 import { getDateDifferenceFromString } from "./dateUtils";
@@ -13,19 +13,19 @@ export async function chargeCalculator(formSubmission: any) {
     else {
         slots = cachedSlots;
     }
-    const foodPrice = (formSubmission.isFoodRequired === YesNoType.Yes && formSubmission.startDate && formSubmission.endDate) ?
+    const foodPrice = (formSubmission.foodType === YesNoType.Yes && formSubmission.startDate && formSubmission.endDate) ?
         formSubmission.groupSize * priceList["PR"].foodFees["REGULAR"] * getDateDifferenceFromString(formSubmission.startDate, formSubmission.endDate)
         : 0;
 
-    const accommodationPrice = (formSubmission.isPartialRetreat === YesNoType.No && formSubmission.isAccommodationRequired === YesNoType.Yes && formSubmission.roomQuantity != null && formSubmission.roomQuantity != undefined) ?
+    const accommodationPrice = (formSubmission.registrationType === RegistrationType.FRWA &&  formSubmission.roomQuantity != null && formSubmission.roomQuantity != undefined) ?
         slots.reduce<number>((acc: number, slot: ISlot, idx: number, slotArr: ISlot[]): number => {
             if (formSubmission.roomQuantity) {
                 return acc + formSubmission.roomQuantity[slot.bedType] * priceList["FRWA"][slot.bedType];
-            }
+            }   
             return acc;
         }, 0)
-        : 0;
-    const partialRetreatPrice = (formSubmission.isPartialRetreat === YesNoType.Yes && formSubmission.startDate && formSubmission.endDate) ?
+        : (formSubmission.registrationType === RegistrationType.FRWOA) ? priceList["FRWOA"].charges : 0;
+    const partialRetreatPrice = (formSubmission.registrationType === RegistrationType.PR && formSubmission.startDate && formSubmission.endDate) ?
         formSubmission.groupSize * priceList["PR"].partialRegistrationCharges * getDateDifferenceFromString(formSubmission.startDate, formSubmission.endDate)
         : 0;
     const departureLunchPrice = formSubmission.isDepartureLunchRequired === YesNoType.Yes ? formSubmission.groupSize * priceList.departureLunch : 0;

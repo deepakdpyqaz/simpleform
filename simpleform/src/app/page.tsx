@@ -45,7 +45,7 @@ interface UserData {
     endDate: string | undefined;
     isArrivalLunchRequired: YesNoType | null;
     isDepartureLunchRequired: YesNoType | null;
-    donationAmount: number | undefined;
+    donationAmount: string[] | undefined;
     suggestions: string;
     coupon: string;
     discount: number;
@@ -65,7 +65,7 @@ const defaultUserData: UserData = {
     endDate: "2025-03-01",
     isArrivalLunchRequired: null,
     isDepartureLunchRequired: null,
-    donationAmount: 0,
+    donationAmount: [],
     suggestions: "",
     coupon: "",
     discount: 0,
@@ -240,9 +240,24 @@ export default function Home() {
     const handleChange = (
         e:
             | React.ChangeEvent<HTMLInputElement>
-            | React.ChangeEvent<HTMLSelectElement>,
+            | React.ChangeEvent<HTMLSelectElement>
     ) => {
         const { name, value } = e.target;
+        if (name === "donationOptions") {
+            let donationAmount = userData.donationAmount ? [...userData.donationAmount] : [];
+            if (donationAmount.includes(value)) {
+                donationAmount = donationAmount.filter((amount) => amount !== value);
+            } else {
+                donationAmount.push(value);
+            }
+            setUserData((userData) => {
+                return {
+                    ...userData,
+                    donationAmount: donationAmount,
+                } as UserData;
+            });
+            return;
+        }
         setUserData(
             (prevState: UserData | undefined) =>
                 ({
@@ -284,28 +299,39 @@ export default function Home() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         let charges = Math.round(
-            (((userData?.isArrivalLunchRequired === YesNoType.Yes
-                ? userData?.groupSize * priceList.arrivalLunch
-                : 0) +
-                (userData?.isDepartureLunchRequired === YesNoType.Yes
-                    ? userData?.groupSize * priceList.departureLunch
-                    : 0) +
-                (userData?.isFoodRequired === YesNoType.Yes
+            (((userData?.registrationType === RegistrationType.PR ?
+                priceList["PR"].partialRegistrationCharges *
+                userData?.groupSize *
+                getDateDifferenceFromString(
+                    userData?.startDate,
+                    userData?.endDate,
+                ) : 0
+            ) +
+                (userData?.isArrivalLunchRequired ===
+                    YesNoType.Yes
                     ? userData?.groupSize *
-                    priceList["PR"].foodFees["REGULAR"] *
-                    getDateDifferenceFromString(
+                    priceList.arrivalLunch
+                    : 0) +
+                (
+                    userData?.registrationType === RegistrationType.FRWA && userData?.roomQuantity != null ? (priceList["FRWA"] as any)[Object.keys(userData?.roomQuantity).filter((item, idx, arr) => (userData?.roomQuantity as any)[item] > 0)[0] as any] : 0
+                ) +
+                (userData?.registrationType === RegistrationType.FRWOA ? priceList["FRWOA"].charges : 0) +
+                (userData?.isDepartureLunchRequired ===
+                    YesNoType.Yes
+                    ? userData?.groupSize *
+                    priceList.departureLunch
+                    : 0) +
+                ((userData?.registrationType === RegistrationType.FRWOA || userData?.registrationType === RegistrationType.PR) && (userData?.foodType !== FoodType.NONE && userData?.foodType !== null) ?
+                    userData?.groupSize *
+                    priceList[userData?.registrationType].foodFees[userData?.foodType] *
+                    (userData?.registrationType === RegistrationType.PR ? getDateDifferenceFromString(
                         userData?.startDate,
                         userData?.endDate,
-                    )
-                    : 0) +
-                (userData?.isAccommodationRequired === YesNoType.Yes
-                    ? roomQuantity["2AB"] * slotList["2AB"]?.price +
-                    roomQuantity["3AB"] * slotList["3AB"]?.price +
-                    roomQuantity["4AB"] * slotList["4AB"]?.price +
-                    roomQuantity["6NAB"] * slotList["6NAB"]?.price
+                    ) : 1)
                     : 0)) *
                 (100 - couponPct)) /
             100,
+
         );
         personalDetails.forEach((personalDetail: PersonalDetails) => {
             if (!validatePhoneNumber(personalDetail.whatsappNumber)) {
@@ -695,7 +721,7 @@ export default function Home() {
                         <label className="block text-sm font-semibold text-teal-800">Prasadam preferences?*</label>
                         <select
                             name="foodType"
-                            defaultValue={userData?.registrationType === RegistrationType.PR ? FoodType.NONE : FoodType.REGULAR}
+                            defaultValue={userData?.registrationType !== RegistrationType.FRWA ? FoodType.NONE : FoodType.REGULAR}
                             onChange={handleChange}
                             required
                             className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
@@ -715,7 +741,9 @@ export default function Home() {
                                         Contribution:
                                     </span>
                                     <span className="mt-2 text-teal-800">
-                                    Rs.{priceList[userData?.registrationType]["foodFees"][userData?.foodType ?? FoodType.REGULAR]} /-
+                                        Rs.{userData?.foodType !== null ? priceList[userData?.registrationType]["foodFees"][userData.foodType] *
+                                            (userData.registrationType === RegistrationType.PR ? getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 1)
+                                            : 0} /-
                                     </span>
                                 </div>
                             </div>
@@ -867,17 +895,44 @@ export default function Home() {
                         area of the retreat, please select from the services
                         below and we can write back with more details.
                     </label>
-                    <select
-                        name="donationAmount"
-                        defaultValue={userData.donationAmount}
-                        onChange={handleChange}
-                        required
-                        className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
+                    <div
+                        className="mt-2 max-h-64 overflow-y-auto border border-teal-400 rounded-lg shadow-sm p-2"
                     >
-                        <option value={0}>Rs. 0/-</option>
-                        <option value={1000}>Rs. 1000/-</option>
-                        <option value={2000}>Rs. 2000/-</option>
-                    </select>
+                        {[
+                            { id: "assistant", label: "Sponsorship for personal assistant to one of the teachers — USD 1,300 / EUR 1200 / INR 10500" },
+                            { id: "dormitory", label: "Dormitory Facility per participant — USD 70 / EURO 70 / INR 6,000" },
+                            { id: "mobile", label: "Mobile for video shooting - Samsung Galaxy Ultra S25 - USD 1,800 / EURO 1,700 / INR 1,50,000" },
+                            { id: "tripod", label: "Tripod for video shooting - Digitech - USD 70 / EURO 70 / INR 6,000" },
+                            { id: "lens", label: "Blue lens / glasses for eye protection - USD 65 / EURO 60 / INR 5,000" },
+                            { id: "camera", label: "Camera for photography - USD 700 / EURO 680 / INR 60,000" },
+                            { id: "harmonium", label: "Harmonium — USD 210 / EUR 204 / INR 18,000" },
+                            { id: "turbans", label: "Turbans & Mukuts for Sri Giriraja - USD 35 / EUR 34 / INR 3,000" },
+                            { id: "daksina", label: "Daksina for Surabhi Kunda USD 60 / EUR 58 / INR 5,000" },
+                            { id: "canva", label: "One year Canva license - USD 50 / EUR 46 / INR 4,000" },
+                            { id: "cowGhee", label: "Pure cow ghee for all participants cooking - USD 1,200 / EUR 1,135 / INR 100,000" },
+                            { id: "puja", label: "Daily Puja at the VIHE - USD 15 / EUR 15 / INR 1,200" },
+                            { id: "recorder", label: "Digital recorder USD 380 / EUR 365 / INR 32,000" },
+                            { id: "oils", label: "Scented oils for Sri Sri Radha Govinda - USD 26 / EUR 24 / INR 2,000" },
+                            { id: "incense", label: "Incense for Sri Sri Radha Govinda - USD 30 / EUR 25 / INR 2,000" },
+                            { id: "vrajavasi", label: "Pure Vrajavasi cow ghee for puja - USD 20 / EUR 18 / INR 1,500" },
+                            { id: "sdCard", label: "Camera SD Card 256GB - USD 55 / EUR 50 / INR 4,200" },
+                            { id: "flowers", label: "Flowers for Puja during the retreats - USD 75 / EUR 70 / INR 6,000" },
+                            { id: "laptop", label: "I would like to donate a laptop" },
+                            { id: "phone", label: "I would like to donate a phone" }
+                        ].map((option) => (
+                            <label key={option.id} className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    name="donationOptions"
+                                    value={option.id}
+                                    onChange={handleChange}
+                                    checked={userData?.donationAmount?.includes(option.id)}
+                                    className="rounded text-teal-600 focus:ring-2 focus:ring-teal-300"
+                                />
+                                <span className="text-teal-800">{option.label}</span>
+                            </label>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="mb-4 mt-4">
@@ -930,24 +985,55 @@ export default function Home() {
                             <span className="text-teal-900">Contributions</span>
                         </div>
                     </div>
-                    <div className="mt-1">
-                        <div className="flex items-center justify-between">
-                            <span className="text-teal-900">Partial retreat</span>
-                            <span className="text-teal-900">
-                                Rs.
-                                {
-                                    userData?.isPartialRetreat === YesNoType.Yes ?
+                    {userData?.registrationType === RegistrationType.PR ?
+                        <div className="mt-1">
+                            <div className="flex items-center justify-between">
+                                <span className="text-teal-900">Partial retreat</span>
+                                <span className="text-teal-900">
+                                    Rs.
+                                    {
+
                                         priceList["PR"].partialRegistrationCharges *
                                         userData?.groupSize *
                                         getDateDifferenceFromString(
                                             userData?.startDate,
                                             userData?.endDate,
-                                        ) : 0
-                                }
-                                /-
-                            </span>
+                                        )
+                                    }
+                                    /-
+                                </span>
+                            </div>
                         </div>
-                    </div>
+                        : null}
+                    {userData?.registrationType === RegistrationType.FRWA ?
+                        <div className="mt-1">
+                            <div className="flex items-center justify-between">
+                                <span className="text-teal-900">Retreat charges</span>
+                                <span className="text-teal-900">
+                                    Rs.
+                                    {
+                                        userData?.roomQuantity != null ?
+                                            (priceList["FRWA"] as any)[Object.keys(userData?.roomQuantity).filter((item, idx, arr) => (userData?.roomQuantity as any)[item] > 0)[0] as any] : 0
+                                    }
+                                    /-
+                                </span>
+                            </div>
+                        </div>
+                        : null}
+                    {userData?.registrationType === RegistrationType.FRWOA ?
+                        <div className="mt-1">
+                            <div className="flex items-center justify-between">
+                                <span className="text-teal-900">Retreat charges</span>
+                                <span className="text-teal-900">
+                                    Rs.
+                                    {
+                                        priceList["FRWOA"]["charges"]
+                                    }
+                                    /-
+                                </span>
+                            </div>
+                        </div>
+                        : null}
                     <div className="mt-1">
                         <div className="flex items-center justify-between">
                             <span className="text-teal-900">Arrival lunch</span>
@@ -978,46 +1064,27 @@ export default function Home() {
                             </span>
                         </div>
                     </div>
-                    <div className="mt-1">
-                        <div className="flex items-center justify-between">
-                            <span className="text-teal-900">
-                                Prasad during retreat
-                            </span>
-                            <span className="text-teal-900">
-                                Rs.
-                                {userData?.isFoodRequired === YesNoType.Yes
-                                    ? userData?.groupSize *
-                                    priceList["PR"].foodFees["REGULAR"] *
-                                    getDateDifferenceFromString(
-                                        userData?.startDate,
-                                        userData?.endDate,
-                                    )
-                                    : 0}
-                                /-
-                            </span>
+                    {userData?.registrationType === RegistrationType.FRWOA || userData?.registrationType === RegistrationType.PR ?
+                        <div className="mt-1">
+                            <div className="flex items-center justify-between">
+                                <span className="text-teal-900">
+                                    Prasad during retreat
+                                </span>
+                                <span className="text-teal-900">
+                                    Rs.
+                                    {userData?.foodType !== FoodType.NONE && userData?.foodType !== null
+                                        ? userData?.groupSize *
+                                        priceList[userData?.registrationType].foodFees[userData?.foodType] *
+                                        (userData?.registrationType === RegistrationType.PR ? getDateDifferenceFromString(
+                                            userData?.startDate,
+                                            userData?.endDate,
+                                        ) : 1)
+                                        : 0}
+                                    /-
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                    <div className="mt-1">
-                        <div className="flex items-center justify-between">
-                            <span className="text-teal-900">Accommodation</span>
-                            <span className="text-teal-900">
-                                Rs.
-                                {userData?.isAccommodationRequired ===
-                                    YesNoType.Yes
-                                    ? roomQuantity["2AB"] *
-                                    slotList["2AB"]?.price +
-                                    roomQuantity["3AB"] *
-                                    slotList["3AB"]?.price +
-                                    roomQuantity["4AB"] *
-                                    slotList["4AB"]?.price +
-                                    roomQuantity["6NAB"] *
-                                    slotList["6NAB"]?.price
-                                    : 0}
-                                /-
-                            </span>
-                        </div>
-                    </div>
-
+                        : null}
                     <div className="mt-1 border-t-4 border-teal-800">
                         <div className="flex items-center justify-between">
                             <span className="text-teal-900">
@@ -1026,7 +1093,7 @@ export default function Home() {
                             <span className="text-teal-900">
                                 Rs.{" "}
                                 {(
-                                    userData?.isPartialRetreat === YesNoType.Yes ?
+                                    userData?.registrationType === RegistrationType.PR ?
                                         priceList["PR"].partialRegistrationCharges *
                                         userData?.groupSize *
                                         getDateDifferenceFromString(
@@ -1039,31 +1106,24 @@ export default function Home() {
                                         ? userData?.groupSize *
                                         priceList.arrivalLunch
                                         : 0) +
+                                    (
+                                        userData?.registrationType === RegistrationType.FRWA && userData?.roomQuantity != null ? (priceList["FRWA"] as any)[Object.keys(userData?.roomQuantity).filter((item, idx, arr) => (userData?.roomQuantity as any)[item] > 0)[0] as any] : 0
+                                    ) +
+                                    (userData?.registrationType === RegistrationType.FRWOA ? priceList["FRWOA"].charges : 0) +
                                     (userData?.isDepartureLunchRequired ===
                                         YesNoType.Yes
                                         ? userData?.groupSize *
                                         priceList.departureLunch
                                         : 0) +
-                                    (userData?.isFoodRequired === YesNoType.Yes
-                                        ? userData?.groupSize *
-                                        priceList["PR"].foodFees["REGULAR"] *
-                                        getDateDifferenceFromString(
+                                    ((userData?.registrationType === RegistrationType.FRWOA || userData?.registrationType === RegistrationType.PR) && (userData?.foodType !== FoodType.NONE && userData?.foodType !== null) ?
+                                        userData?.groupSize *
+                                        priceList[userData?.registrationType].foodFees[userData?.foodType] *
+                                        (userData?.registrationType === RegistrationType.PR ? getDateDifferenceFromString(
                                             userData?.startDate,
                                             userData?.endDate,
-                                        )
-                                        : 0) +
-                                    (userData?.isAccommodationRequired ===
-                                        YesNoType.Yes
-                                        ? roomQuantity["2AB"] *
-                                        slotList["2AB"]?.price +
-                                        roomQuantity["3AB"] *
-                                        slotList["3AB"]?.price +
-                                        roomQuantity["4AB"] *
-                                        slotList["4AB"]?.price +
-                                        roomQuantity["6NAB"] *
-                                        slotList["6NAB"]?.price
-                                        : 0)}{" "}
-                                /-
+                                        ) : 1)
+                                        : 0)
+                                }/-
                             </span>
                         </div>
                     </div>
@@ -1083,50 +1143,40 @@ export default function Home() {
                             <span className="text-teal-900">
                                 Rs.{" "}
                                 {Math.round(
-                                    ((
-                                        (
-                                            userData?.isPartialRetreat === YesNoType.Yes ?
-                                                priceList["PR"].partialRegistrationCharges *
-                                                userData?.groupSize *
-                                                getDateDifferenceFromString(
-                                                    userData?.startDate,
-                                                    userData?.endDate,
-                                                ) : 0
-                                        ) +
+                                    (((
+                                        userData?.registrationType === RegistrationType.PR ?
+                                            priceList["PR"].partialRegistrationCharges *
+                                            userData?.groupSize *
+                                            getDateDifferenceFromString(
+                                                userData?.startDate,
+                                                userData?.endDate,
+                                            ) : 0
+                                    ) +
                                         (userData?.isArrivalLunchRequired ===
                                             YesNoType.Yes
                                             ? userData?.groupSize *
                                             priceList.arrivalLunch
                                             : 0) +
+                                        (
+                                            userData?.registrationType === RegistrationType.FRWA && userData?.roomQuantity != null ? (priceList["FRWA"] as any)[Object.keys(userData?.roomQuantity).filter((item, idx, arr) => (userData?.roomQuantity as any)[item] > 0)[0] as any] : 0
+                                        ) +
+                                        (userData?.registrationType === RegistrationType.FRWOA ? priceList["FRWOA"].charges : 0) +
                                         (userData?.isDepartureLunchRequired ===
                                             YesNoType.Yes
                                             ? userData?.groupSize *
                                             priceList.departureLunch
                                             : 0) +
-                                        (userData?.isFoodRequired ===
-                                            YesNoType.Yes
-                                            ? userData?.groupSize *
-                                            priceList["PR"].foodFees["REGULAR"] *
-                                            getDateDifferenceFromString(
+                                        ((userData?.registrationType === RegistrationType.FRWOA || userData?.registrationType === RegistrationType.PR) && (userData?.foodType !== FoodType.NONE && userData?.foodType !== null) ?
+                                            userData?.groupSize *
+                                            priceList[userData?.registrationType].foodFees[userData?.foodType] *
+                                            (userData?.registrationType === RegistrationType.PR ? getDateDifferenceFromString(
                                                 userData?.startDate,
                                                 userData?.endDate,
-                                            )
-                                            : 0) +
-                                        (userData?.isAccommodationRequired ===
-                                            YesNoType.Yes
-                                            ? roomQuantity["2AB"] *
-                                            slotList["2AB"]?.price +
-                                            roomQuantity["3AB"] *
-                                            slotList["3AB"]?.price +
-                                            roomQuantity["4AB"] *
-                                            slotList["4AB"]?.price +
-                                            roomQuantity["6NAB"] *
-                                            slotList["6NAB"]?.price
+                                            ) : 1)
                                             : 0)) *
                                         (100 - couponPct)) /
                                     100,
-                                )}{" "}
-                                /-{" "}
+                                )}/-{" "}
                             </span>
                         </div>
                     </div>

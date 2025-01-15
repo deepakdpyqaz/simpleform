@@ -15,17 +15,56 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const slots: ISlot[] = await Slot.find({});
     const newSlots: AnyBulkWriteOperation[] = slots.map((slot: ISlot, idx: number) => {
       let reqSlots = newSubmission.roomQuantity[slot.bedType] || 0;
+      let gender = newSubmission.personalDetails[0].gender;
+      if (gender != "male" || gender != "female") {
+        throw new Error("Invalid gender");
+      }
       if (slot.neutralSpotsAvailable + (
-        newSubmission.personalDetails[0].gender === "male" ? slot.maleSpotsAvailable : slot.femaleSpotsAvailable
+        gender === "male" ? slot.maleSpotsAvailable : slot.femaleSpotsAvailable
       ) < reqSlots) {
         throw new Error("Spot not available");
       }
-      return {
-        updateMany: {
-          filter: { bedType: slot.bedType },
-          update: { $inc: { neutralSpotsAvailable: -reqSlots, hold: reqSlots } },
+      if (gender === "male") {
+        if (slot.maleSpotsAvailable >= reqSlots) {
+          return {
+            updateMany: {
+              filter: { bedType: slot.bedType },
+              update: { $inc: { maleSpotsAvailable: -reqSlots, maleSpotsHold: reqSlots } },
+            }
+          };
+        } else if (slot.neutralSpotsAvailable >= reqSlots) {
+          return {
+            updateMany: {
+              filter: { bedType: slot.bedType },
+              update: { $inc: { neutralSpotsAvailable: -slot.spotsAvailable, maleSpotsHold: reqSlots, maleSpotsAvailable: (slot.spotsAvailable - reqSlots) } },
+            }
+          };
+        } else {
+          throw new Error("Spot not available");
         }
-      };
+      }
+      else if (gender === "female") {
+        if (slot.femaleSpotsAvailable >= reqSlots) {
+          return {
+            updateMany: {
+              filter: { bedType: slot.bedType },
+              update: { $inc: { femaleSpotsAvailable: -reqSlots, femaleSpotsHold: reqSlots } },
+            }
+          };
+        } else if (slot.neutralSpotsAvailable >= reqSlots) {
+          return {
+            updateMany: {
+              filter: { bedType: slot.bedType },
+              update: { $inc: { neutralSpotsAvailable: -slot.spotsAvailable, femaleSpotsHold: reqSlots, femaleSpotsAvailable: (slot.spotsAvailable - reqSlots) } },
+            }
+          };
+        } else {
+          throw new Error("Spot not available");
+        }
+      }
+      else {
+        throw new Error("Invalid gender");
+      }
     });
     if (newSubmission.charges == 0) {
       newSubmission.status = "success";

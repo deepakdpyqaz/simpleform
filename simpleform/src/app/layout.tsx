@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vihe",
-  description: "Created by deepak",
+  title: "VIHE Saranagati Retreat 2025",
+  description: "",
 };
 
 export default function RootLayout({
