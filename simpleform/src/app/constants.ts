@@ -6,14 +6,20 @@ const priceList = {
         "6NAB": 6000,
     },
     "FRWOA":{
-        "withFood": 5600,
-        "withoutFood": 3000,
+        "charges":3000,
+        "foodFees":{
+            "REGULAR": 2600,
+            "VEGAN": 2600,
+            "GLUTEN_FREE": 2600,
+            "NONE": 0
+        }
     },
     "PR":{
         "foodFees":{
             "REGULAR": 450,
             "VEGAN": 450,
             "GLUTEN_FREE": 450,
+            "NONE": 0
         },
         "partialRegistrationCharges":450
     },

@@ -75,7 +75,7 @@ const defaultPersonalDetails: PersonalDetails = {
     name: "",
     dob: "",
     nationality: "",
-    gender: null,
+    gender: GenderType.Male,
     spiritualMaster: "",
     findRetreat: "",
     startYear: "",
@@ -136,7 +136,7 @@ export default function Home() {
                 const bedPriceList = slots.reduce((acc, slot) => {
                     acc[slot.bedType] = {
                         price: priceList["FRWA"][slot?.bedType],
-                        available: slot?.neutralSpotsAvailable + (personalDetails[0].gender === GenderType.Male?slot?.maleSpotsAvailable: slot?.femaleSpotsAvailable),
+                        available: slot?.neutralSpotsAvailable + (personalDetails[0].gender === GenderType.Male ? slot?.maleSpotsAvailable : slot?.femaleSpotsAvailable),
                     };
                     return acc;
                 }, {} as Slot);
@@ -550,13 +550,6 @@ export default function Home() {
                                     </div>
                                 </div>
                                 {Object.keys(roomQuantity)
-                                    .filter((room) => {
-                                        return !(
-                                            userData.travelType ===
-                                            TravelType.Individual &&
-                                            room === BedType.AB4
-                                        );
-                                    })
                                     .map((room, index: number) => {
                                         return (
                                             <div className="mt-2" key={index}>
@@ -638,6 +631,18 @@ export default function Home() {
                             </div>
                         </div>
                     ) : null}
+                    {userData?.registrationType === RegistrationType.FRWOA ?
+                        <div className="mt">
+                            <div className="flex items-center justify-around">
+                                <span className="mt-2 text-teal-800">
+                                    Contribution:
+                                </span>
+                                <span className="mt-2 text-teal-800">
+                                    Rs. {priceList["FRWOA"]["charges"]}/-
+                                </span>
+                            </div>
+                        </div>
+                        : null}
                     {userData?.registrationType === RegistrationType.PR ?
                         <>
                             <div className="mb-2 mt-1 flex flex-col sm:flex-row gap-6">
@@ -703,6 +708,18 @@ export default function Home() {
                                 : null}
 
                         </select>
+                        {userData?.registrationType === RegistrationType.PR || userData?.registrationType === RegistrationType.FRWOA ?
+                            <div className="mt">
+                                <div className="flex items-center justify-around">
+                                    <span className="mt-2 text-teal-800">
+                                        Contribution:
+                                    </span>
+                                    <span className="mt-2 text-teal-800">
+                                    Rs.{priceList[userData?.registrationType]["foodFees"][userData?.foodType ?? FoodType.REGULAR]} /-
+                                    </span>
+                                </div>
+                            </div>
+                            : null}
                     </div>
 
                     <div className="mb-8">
