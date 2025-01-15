@@ -39,11 +39,25 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             if (formSubmission != null && slots != null) {
                 const newSlots: AnyBulkWriteOperation[] = slots.map((slot: ISlot, idx: number) => {
                     let reqSlots = formSubmission && formSubmission.roomQuantity ? formSubmission.roomQuantity[slot.bedType] : 0;
-                    return {
-                        updateMany: {
-                            filter: { bedType: slot.bedType },
-                            update: { $inc: { hold: -reqSlots } }
-                        }
+                    let gender = formSubmission.personDetails[0].gender;
+                    if (gender === "male") {
+                            return {
+                                updateMany: {
+                                    filter: { bedType: slot.bedType },
+                                    update: { $inc:  {maleSpotsHold: -reqSlots } },
+                                }
+                            };
+                    }
+                    else if (gender === "female") {
+                        return {
+                            updateMany: {
+                                filter: { bedType: slot.bedType },
+                                update: { $inc: {femaleSpotsHold: reqSlots } },
+                            }
+                        };
+                    }
+                    else{
+                        throw new Error("invalid gender");
                     }
                 })
                 formSubmission.status = "success";

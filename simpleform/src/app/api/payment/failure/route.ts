@@ -38,11 +38,29 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             if (formSubmission != null && slots != null) {
                 const newSlots: AnyBulkWriteOperation[] = slots.map((slot: ISlot, idx: number) => {
                     let reqSlots = formSubmission && formSubmission.roomQuantity ? formSubmission.roomQuantity[slot.bedType] : 0;
-                    return {
-                        updateMany: {
-                            filter: { bedType: slot.bedType },
-                            update: { $inc: { hold: -reqSlots, available: reqSlots } }
-                        }
+                    let gender = formSubmission.personDetails[0].gender;
+                    if (gender === "male") {
+                        let ns = Math.round((slot.maleSpotsAvailable + reqSlots)/slot.spotsAvailable)*slot.spotsAvailable;
+                        let ms = slot.maleSpotsAvailable + reqSlots - ns;
+                        return {
+                            updateMany: {
+                                filter: { bedType: slot.bedType },
+                                update: { $inc: { maleSpotsHold: -reqSlots, maleSpotsAvailable: ms, neutralSpotsAvailable: ns } },
+                            }
+                        };
+                    }
+                    else if (gender === "female") {
+                        let ns = Math.round((slot.femaleSpotsAvailable + reqSlots)/slot.spotsAvailable)*slot.spotsAvailable;
+                        let fs = slot.femaleSpotsAvailable + reqSlots - ns;
+                        return {
+                            updateMany: {
+                                filter: { bedType: slot.bedType },
+                                update: { $inc: { femaleSpotsHold: -reqSlots, femaleSpotsAvailable: fs, neutralSpotsAvailable: ns } },
+                            }
+                        };
+                    }
+                    else {
+                        throw new Error("invalid gender");
                     }
                 })
                 formSubmission.status = "failure";
