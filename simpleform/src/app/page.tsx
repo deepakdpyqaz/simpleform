@@ -130,7 +130,7 @@ export default function Home() {
     const [couponPct, setCouponPct] = useState<number>(0);
     const fetchSlots = async () => {
         try {
-            if (personalDetails[0].gender === GenderType.Male || personalDetails[0].gender === GenderType.Female) {
+            if ((personalDetails && personalDetails[0]) && (personalDetails[0].gender === GenderType.Male || personalDetails[0].gender === GenderType.Female)) {
                 const res = await fetch("/api/slot");
                 const slots: ISlot[] = (await res.json())?.slots as ISlot[];
                 const bedPriceList = slots.reduce((acc, slot) => {
@@ -357,7 +357,7 @@ export default function Home() {
             if (response.ok) {
                 setSubmitStatus(SubmitStatus.Submitted);
                 setUserData(defaultUserData);
-                setPersonalDetails([]);
+                setPersonalDetails([defaultPersonalDetails]);
                 const body = await response.json();
                 const isPaymentRequired = body?.isPaymentRequired || YesNoType.Yes;
                 if (isPaymentRequired == YesNoType.No) {

@@ -71,6 +71,7 @@ export default function PaymentComponent() {
     }
     useEffect(() => {
         const submissionId = searchParams.get('id');
+        console.log(submissionId);
         if (submissionId !== null) {
             setId(submissionId);
             fetchPaymentData(submissionId);

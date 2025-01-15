@@ -40,7 +40,7 @@ const FormSubmissionSchema = new Schema({
   endDate: { type: String, required: false },
   isArrivalLunchRequired: {type: String, required: false},
   isDepartureLunchRequired: {type: String, required: false},
-  donationAmount: {type: Number, required: false},
+  donationAmount: {type: [String], required: false},
   suggestions: {type: String, required: false},
   coupon: {type: String, required: false},
   discount: {type: Number, required: false, default: 0},

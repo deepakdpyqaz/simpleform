@@ -16,7 +16,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const newSlots: AnyBulkWriteOperation[] = slots.map((slot: ISlot, idx: number) => {
       let reqSlots = newSubmission.roomQuantity[slot.bedType] || 0;
       let gender = newSubmission.personalDetails[0].gender;
-      if (gender != "male" || gender != "female") {
+      if (gender != "male" && gender != "female") {
         throw new Error("Invalid gender");
       }
       if (slot.neutralSpotsAvailable + (
