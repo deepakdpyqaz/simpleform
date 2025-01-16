@@ -1,22 +1,29 @@
 <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-    <h1>Hare Krsna dear devotee,</h1>
+    <p>Hare Krsna dear devotee,</p>
 
     <p>Please accept our humble obeisances. All glories to Srila Prabhupada.</p>
 
-    <p>Thank you for registering for the <strong>Saranagati Retreat</strong> (Feb 23 - Mar 1).</p>
+    <p>Your registration for the <strong>Saranagati Retreat</strong> (Feb 23 - Mar 1). is <strong>confirmed.</strong></p>
 
     <p>
         Please reach the <strong>Govardhana Retreat Centre (GRC)</strong> on <strong>Feb 23</strong> to complete your registration 
         between <strong>11AM and 2PM</strong>. Attached is the QR code with the location of the GRC.
     </p>
 
-    <p>Lunch prasada on Feb 23 will be available from <strong>2PM to 3PM</strong>. The opening session will be at <strong>4PM</strong> at the Govardhana Retreat Centre.</p>
+    <p>For updates during the retreats, please join the Saranagati Retreat WhatsApp Community group on this link <a href="https://chat.whatsapp.com/DhSg2uvGjpTIN8sNJxw1AZ" target="_blank">https://chat.whatsapp.com/DhSg2uvGjpTIN8sNJxw1AZ</a>.</p>
+
+    <p>Lunch prasada on Feb 23 will be available from <strong>1:30PM to 3:30PM</strong>. The opening session will be at <strong>4:30PM</strong> at the Govardhana Retreat Centre.</p>
 
     <p>
         All devotees staying at Govardhan Retreat Center are requested to plan their checkout on <strong>March 2</strong> by 
-        <strong>10AM</strong> at the latest.
+        <strong>10AM</strong> at the latest.  For booking a room at the GRC before or after the retreat dates, kindly contact the GRC on <a href="mailto:grcroombooking@gmail.com">grcroombooking@gmail.com</a>.
     </p>
 
+    <p>Please find below the contribution receipt and following attached documents:</p>
+    <ol>
+        <li>Important information</li>
+        <li>QR Code with the GRC location</li>
+    </ol>
     <p>We look forward to serving you at the retreats.</p>
 
     <p>
@@ -27,11 +34,16 @@
         <p><strong>Transaction Time:</strong> {{transactionTime}}</p>
         <p><strong>Transaction ID:</strong> {{transactionId}}</p>
         <p><strong>Number of People Registered:</strong> {{groupSize}}</p>
+        {{#if isRoomSelected}}
+        <p><strong>Room type:</strong> {{roomTypeInfo}} </p>
+        {{/if}}
         <p><strong>Contributions Breakdown:</strong></p>
         <ul>
             <li>Partial retreat: Rs.{{partialRetreatCharges}}/-</li>
             <li>Accommodation: Rs.{{accommodationCharges}}/-</li>
+            {{#unless isRoomSelected}}
             <li>Prasad during retreat:Rs.{{foodCharges}}/-</li>
+            {{/unless}}
             <li>Lunch on arrival: Rs.{{arrivalLunchCharges}}/-</li>
             <li>Lunch on departure: Rs.{{departureLunchCharges}}/-</li>
             <li>Discount: Rs.{{discount}}/-</li>

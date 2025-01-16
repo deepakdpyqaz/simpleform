@@ -78,16 +78,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
 }
-/* INFO: This is for debugging purposes only
-export async function GET(req: NextRequest): Promise<NextResponse>{
-    const formSubmission = new FormSubmission();
-    formSubmission._id = "123456";
-    formSubmission.email = "deepakdpynew@gmail.com";
-    formSubmission.groupSize = 3;
-    sendSuccessEmail(formSubmission);
-    return new NextResponse(JSON.stringify({ "message": "success" }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-    })
-}
-*/
+/* INFO: This is for debugging purposes only*/
+// export async function GET(req: NextRequest): Promise<NextResponse>{
+//     const formSubmission = new FormSubmission();
+//     formSubmission._id = "123456";
+//     formSubmission.email = "deepakdpynew@gmail.com";
+//     formSubmission.groupSize = 3;
+//     formSubmission.registrationType = RegistrationType.FRWA;
+//     formSubmission.room
+//     sendSuccessEmail(formSubmission);
+//     return new NextResponse(JSON.stringify({ "message": "success" }), {
+//         status: 200,
+//         headers: { 'Content-Type': 'application/json' },
+//     })
+// }

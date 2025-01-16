@@ -73,7 +73,7 @@ const PersonalDetailsForm: React.FC<{//+
                 />
             </div>
             <div className="mb-4">
-                <label className="block text-sm font-semibold text-teal-800">How did you find out about the retreat?</label>
+                <label className="block text-sm font-semibold text-teal-800">How did you learn about the retreat?</label>
                 <input
                     type="text"
                     name="findRetreat"
@@ -83,7 +83,7 @@ const PersonalDetailsForm: React.FC<{//+
                 />
             </div>
             <div className="mb-4">
-                <label className="block text-sm font-semibold text-teal-800">Year when you came in touch with the Hare Krishna movement*</label>
+                <label className="block text-sm font-semibold text-teal-800">Year you began your association with the Hare Krishna movement*</label>
                 <input
                     className="mt-2 block w-full rounded-lg border border-teal-400 shadow-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-300 transition-all duration-200"
                     type="text"
@@ -118,7 +118,7 @@ const PersonalDetailsForm: React.FC<{//+
                 />
             </div>
             <div className="mb-4">
-                <label className="block text-sm font-semibold text-teal-800">Do you snore?*</label>
+                <label className="block text-sm font-semibold text-teal-800">Do you have a tendancy to snore?*</label>
                 <div className="mt-4 flex items-center gap-6">
                     <label className="flex items-center cursor-pointer">
                         <input
@@ -184,7 +184,7 @@ const PersonalDetailsForm: React.FC<{//+
             {formData?.isVolunteer === YesNoType.Yes ?
                 <div>
                     <div className="mb-4">
-                        <label className="block text-sm font-semibold text-teal-800">Your occupation*</label>
+                        <label className="block text-sm font-semibold text-teal-800">Please specify your area of experience/expertise/skillset *</label>
                         <input
                                 type="text"
                                 name="occupation"

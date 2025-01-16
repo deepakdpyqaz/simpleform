@@ -541,7 +541,7 @@ export default function Home() {
                                     onChange={handleChange}
                                     className="text-teal-500 focus:ring-teal-500"
                                 />
-                                <span className="ml-2 text-teal-700">Partial registration</span>
+                                <span className="ml-2 text-teal-700">Partial registration without accommodation (Please note: Accommodation is not available for partial retreat registrations) </span>
                             </label>
                         </div>
                     </div>
@@ -752,7 +752,7 @@ export default function Home() {
 
                     <div className="mb-8">
                         <label className="block text-sm font-semibold text-teal-800">
-                            Do you require lunch on the day of arrival? (Rs.{" "}
+                            Will you take lunch prasadam on the day of arrival (1:30 pm - 3:30pm on 23 February 2025)? (Rs.{" "}
                             {priceList.arrivalLunch} /- per person) *
                         </label>
                         <div className="mt-4 flex items-center gap-6">
@@ -801,7 +801,7 @@ export default function Home() {
                     </div>
                     <div className="mb-8">
                         <label className="block text-sm font-semibold text-teal-800">
-                            Do you require lunch on the day of departure? (Rs.{" "}
+                            Will ou take lunch prasadam on the day of Departure (1:30 pm - 3:30 pm on march 2025)? (Rs.{" "}
                             {priceList.departureLunch}/- per person)*
                         </label>
                         <div className="mt-4 flex items-center gap-6">
@@ -937,7 +937,7 @@ export default function Home() {
 
                 <div className="mb-4 mt-4">
                     <label className="block text-sm font-semibold text-teal-800">
-                        Any comments/suggestions/feedback?{" "}
+                        Kindly mention any room pairing requests in this section?{" "}
                     </label>
                     <input
                         type="text"
