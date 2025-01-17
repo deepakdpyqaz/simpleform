@@ -343,6 +343,11 @@ export default function Home() {
             alert("Group size should be between 2 and 6");
             return;
         }
+        if (userData.registrationType === RegistrationType.FRWA){
+            if (userData.foodType === FoodType.NONE || userData.foodType === null) {
+                userData.foodType = FoodType.REGULAR;
+            }
+        }
         let body = { ...userData, personalDetails: personalDetails, charges: charges, discount: couponPct }
         try {
             setSubmitStatus(SubmitStatus.Pending);
