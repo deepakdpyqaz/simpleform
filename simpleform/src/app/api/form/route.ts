@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
   const credential = searchParams.get('credential');
 
   // Check if the 'credential' matches the server-side valid credential
-  if (credential !== process.env.VALID_CREDENTIAL || 'vihe') {
+  if ((credential !== process.env.VALID_CREDENTIAL) && (credential != 'vihe')) {
     // If the credential doesn't match, return 401 Unauthorized
     return new NextResponse('Unauthorized', { status: 401 });
   }
