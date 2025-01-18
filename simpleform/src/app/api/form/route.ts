@@ -97,6 +97,7 @@ export async function GET(req: NextRequest) {
   await connectToDatabase();
   const { searchParams } = new URL(req.url);
   const credential = searchParams.get('credential');
+  const filter = searchParams.get('filter')
 
   // Check if the 'credential' matches the server-side valid credential
   if ((credential !== process.env.VALID_CREDENTIAL) && (credential != 'vihe')) {
@@ -105,7 +106,12 @@ export async function GET(req: NextRequest) {
   }
 
   // Sample data to be included in the Excel file
-  const data = await FormSubmission.find({ status: "success" });
+  let data;
+  if (filter === 'success') {
+    data = await FormSubmission.find({ status: "success" });
+  } else {
+    data = await FormSubmission.find({});
+  }
   const json_data = JSON.parse(JSON.stringify(data));
   data.forEach((obj, idx) => {
     json_data[idx]["roomQuantity"] = JSON.stringify(obj.roomQuantity);
