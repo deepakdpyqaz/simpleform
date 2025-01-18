@@ -33,7 +33,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         if (key && txnid && amount && productinfo && productinfo && email && firstname && phone && status && bank_ref_num && status === "success") {
             const hash = generateReverseHash(key, txnid, amount, productinfo, firstname, email, status, udf1, udf2, udf3, udf4, udf5, additionalCharges);
             if (hash !== receivedHash) {
-                throw new Error("Error in payment");
+                console.log(body);
+                console.log(hash,receivedHash);
+                console.log("Error in payment, incorrect hash");
             }
             const [formSubmission, slots] = await Promise.all([FormSubmission.findById(txnid), Slot.find()]);
             if (formSubmission != null && slots != null) {
@@ -69,7 +71,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 throw new Error("Error in setting slots");
             }
         } else {
-            throw new Error("Error in payment");
+            console.log(body);
+            throw new Error("Error in payment, insufficient details");
         }
         return NextResponse.redirect(new URL(`/payment/success`, req.url),303);
     } catch (error) {

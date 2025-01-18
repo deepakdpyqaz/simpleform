@@ -29,16 +29,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const udf4 = body.get('udf4') || '';
         const udf5 = body.get('udf5') || '';
         const additionalCharges = body.get('additionalCharges') || '';
-        if (key && txnid && amount && productinfo && firstname && email && firstname && phone && status) {
+        if (key && txnid && amount && productinfo && firstname && email && phone && status) {
             const hash = generateReverseHash(key, txnid, amount, productinfo, firstname, email, status, udf1, udf2, udf3, udf4, udf5, additionalCharges);
             if (hash !== receivedHash) {
-                throw new Error("Error in payment");
+                console.log(body);
+                console.log(hash,receivedHash);
+                console.log("Error in payment due to incorrect hashing");
             }
             const [formSubmission, slots] = await Promise.all([FormSubmission.findById(txnid), Slot.find()]);
             if (formSubmission != null && slots != null) {
                 const newSlots: AnyBulkWriteOperation[] = slots.map((slot: ISlot, idx: number) => {
                     let reqSlots = formSubmission && formSubmission.roomQuantity ? formSubmission.roomQuantity[slot.bedType] : 0;
-                    let gender = formSubmission.personDetails[0].gender;
+                    let gender = formSubmission.personalDetails[0].gender;
                     if (gender === "male") {
                         let ns = Math.round((slot.maleSpotsAvailable + reqSlots)/slot.spotsAvailable)*slot.spotsAvailable;
                         let ms = slot.maleSpotsAvailable + reqSlots - ns;
@@ -73,10 +75,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         } else {
             throw new Error("Error in payment");
         }
-        return NextResponse.redirect(new URL(`/payment/failure`, req.url));
+        return NextResponse.redirect(new URL(`/payment/failure`, req.url),303);
     } catch (error) {
         console.log(error);
-        return NextResponse.redirect(new URL(`/payment/failure`, req.url));
+        return NextResponse.redirect(new URL(`/payment/failure`, req.url),303);
     }
 
 }
