@@ -77,11 +77,19 @@ const attachments = [
 ]
 
 const roomTypeMap = {
-  "2AB": "One spot in 2 sharing room",
-  "3AB": "One spot in 3 sharing room",
-  "4AB": "One spot in 4 sharing room",
-  "6NAB": "One spot in 6 sharing room with non-attached bathroom"
+  "2AB": "One spot in two sharing room",
+  "3AB": "One spot in three sharing room",
+  "4AB": "One spot in four sharing room",
+  "6NAB": "One spot in six sharing room"
 }
+
+const postTypeMap = {
+  "2AB": "with attached bathroom",
+  "3AB": "with attached bathroom (please note this is 2AB with an additional bed)",
+  "4AB": "with attached bathroom",
+  "6NAB": "with non-attached common bathroom"
+}
+
 const sendSuccessEmail = async (userData: any) => {
 
   const filePath = path.join(process.cwd(), 'templates', `successmail.html`);
@@ -93,7 +101,7 @@ const sendSuccessEmail = async (userData: any) => {
   let isRoomSelected = false;
   if(userData.registrationType === RegistrationType.FRWA){
     const selectedRoom = roomList.filter((room) => userData.roomQuantity[room] > 0)[0];
-    roomTypeInfo = `${roomTypeMap[selectedRoom as keyof typeof roomTypeMap]} for ${userData.personalDetails[0].gender=='male'?'gents':'ladies'}`;
+    roomTypeInfo = `${roomTypeMap[selectedRoom as keyof typeof roomTypeMap]} for ${userData.personalDetails[0].gender=='male'?'gents':'ladies'} ${postTypeMap[selectedRoom as keyof typeof postTypeMap]}`;
     isRoomSelected = true;
   }
   const variables = {

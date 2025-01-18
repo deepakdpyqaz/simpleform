@@ -29,7 +29,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const udf4 = body.get('udf4') || '';
         const udf5 = body.get('udf5') || '';
         const additionalCharges = body.get('additionalCharges') || '';
-        if (key && txnid && amount && productinfo && firstname && email && phone && status) {
+        if (key && txnid && amount && productinfo && firstname && email && status) {
             const hash = generateReverseHash(key, txnid, amount, productinfo, firstname, email, status, udf1, udf2, udf3, udf4, udf5, additionalCharges);
             if (hash !== receivedHash) {
                 console.log(body);
