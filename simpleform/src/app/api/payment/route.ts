@@ -8,6 +8,7 @@ import Slot, { ISlot } from '../models/Slot';
 import cache from '../utils/cache';
 import { generateHash } from "../utils/hashUtils";
 import { chargeCalculator } from '../utils/chargeUtils';
+import logger from '@/app/utils/logger';
 
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -40,8 +41,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         }
         const {foodPrice, partialRetreatPrice, accommodationPrice, departureLunchPrice, arrivalLunchPrice, totalPrice, discount, finalPrice} = await chargeCalculator(formSubmission);
         if (finalPrice !== formSubmission.charges) {
-            return new NextResponse(JSON.stringify({ message: "Invalid payment details" }), {
-                status: 404,
+            logger.error(`${id} : Calculated price ${finalPrice} does not match with form submission charges ${formSubmission.charges}`);
+            return new NextResponse(JSON.stringify({ message: "Invalid payment details, charges doesn't match with calculated" }), {
+                status: 400,
                 headers: { 'Content-Type': 'application/json' },
             })
         }
@@ -80,6 +82,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     } catch (error) {
         console.error(error);
+        logger.error(`Error in GET /api/payment: ${error} : URL : ${req.url}`);
         return new NextResponse(JSON.stringify({ message: error }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },

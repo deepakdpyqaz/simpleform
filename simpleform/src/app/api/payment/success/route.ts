@@ -6,6 +6,7 @@ import Slot, { ISlot } from "../../models/Slot";
 import Transaction, { ITransaction } from "../../models/Transaction";
 import { AnyBulkWriteOperation } from "mongoose";
 import { MailOptions, sendEmail, sendSuccessEmail } from "../../utils/mailer";
+import logger from "@/app/utils/logger";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 console.log(body);
                 console.log(hash,receivedHash);
                 console.log("Error in payment, incorrect hash");
+                logger.error(`Error in payment, incorrect hash, calculated: ${hash} received: ${receivedHash} body: ${JSON.stringify(body)}`);
             }
             const [formSubmission, slots] = await Promise.all([FormSubmission.findById(txnid), Slot.find()]);
             if (formSubmission != null && slots != null) {
@@ -72,11 +74,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             }
         } else {
             console.log(body);
+            logger.error(`Error in payment insufficient details, body: ${JSON.stringify(body)}`);
             throw new Error("Error in payment, insufficient details");
         }
         return NextResponse.redirect(new URL(`/payment/success`, req.url),303);
     } catch (error) {
         console.log(error);
+        logger.error(`Error in POST /api/payment/success: ${error} : URL : ${req.url}`);
         return NextResponse.redirect(new URL(`/payment/failure`, req.url),303);
     }
 

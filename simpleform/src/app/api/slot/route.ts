@@ -5,6 +5,7 @@ import cache from '../utils/cache';
 import FormSubmission, { IFormSubmission } from '../models/FormSubmission';
 import { AnyBulkWriteOperation } from 'mongoose';
 import { RegistrationType } from '@/app/constants';
+import logger from "../../utils/logger";
 export async function GET(req: NextRequest): Promise<NextResponse> {
     try {
         await connectToDatabase();
@@ -29,6 +30,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         }
 
         if (!slots) {
+            logger.error(`No slots found: searchParams: ${searchParams}`);
             return new NextResponse(JSON.stringify({ message: 'No slots found' }), {
                 status: 404,
                 headers: { 'Content-Type': 'application/json' },

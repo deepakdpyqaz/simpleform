@@ -7,6 +7,8 @@ services:
       - "3000:3000"
     depends_on:
       - mongodb
+    volumes:
+      - logs:/var/logs/vihe.log
     restart: always
 
   mongodb:
@@ -28,4 +30,6 @@ services:
 
 volumes:
   mongodb_data:
+    driver: local
+  logs:
     driver: local

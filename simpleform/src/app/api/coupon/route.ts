@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "../lib/mongoose";
 import Coupon, { ICoupon } from "../models/Coupon";
+import logger from "@/app/utils/logger";
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
     try{
@@ -23,6 +24,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }
     catch(error){
         console.error(error);
+        logger.error(`Error in GET /api/coupon: ${error} : URL : ${req.url}`);
         return new NextResponse(JSON.stringify({ message: error }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },

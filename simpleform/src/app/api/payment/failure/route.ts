@@ -5,6 +5,7 @@ import FormSubmission, { IFormSubmission } from "../../models/FormSubmission";
 import Slot, { ISlot } from "../../models/Slot";
 import Transaction, { ITransaction } from "../../models/Transaction";
 import { AnyBulkWriteOperation } from "mongoose";
+import logger from "@/app/utils/logger";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 console.log(body);
                 console.log(hash,receivedHash);
                 console.log("Error in payment due to incorrect hashing");
+                logger.error(`Error in payment, incorrect hash, calculated: ${hash} received: ${receivedHash} body: ${JSON.stringify(body)}`);
             }
             const [formSubmission, slots] = await Promise.all([FormSubmission.findById(txnid), Slot.find()]);
             if (formSubmission != null && slots != null) {
@@ -73,11 +75,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 throw new Error("Error in setting slots");
             }
         } else {
-            throw new Error("Error in payment");
+            logger.error(`Error in payment, ${JSON.stringify(body)}`);
+            throw new Error("Error in payment, insufficient details for transaction");
+
         }
         return NextResponse.redirect(new URL(`/payment/failure`, req.url),303);
     } catch (error) {
         console.log(error);
+        logger.error(`Error in POST /api/payment/failure: ${error} : URL : ${req.url}`);
         return NextResponse.redirect(new URL(`/payment/failure`, req.url),303);
     }
 

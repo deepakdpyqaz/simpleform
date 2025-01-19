@@ -6,6 +6,7 @@ import { AnyBulkWriteOperation } from 'mongoose';
 import { YesNoType } from '@/app/constants';
 import { sendSuccessEmail } from '../utils/mailer';
 import * as XLSX from 'xlsx';
+import logger from '@/app/utils/logger';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
@@ -83,7 +84,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
+    const body = await req.json();
+    body["roomQuantity"] = JSON.stringify(body.roomQuantity);
+    body["personalDetails"] = JSON.stringify(body.personalDetails);
     console.error(error);
+    logger.error(`Error in form submission: ${error} - request params ${JSON.stringify(body)}`);
     return new NextResponse(JSON.stringify({ message: error }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
