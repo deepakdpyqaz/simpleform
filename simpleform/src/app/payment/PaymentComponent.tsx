@@ -99,32 +99,32 @@ export default function PaymentComponent() {
                         <tbody>
                             <tr>
                                 <td className="px-4 py-2 border-b">Accommodation</td>
-                                <td className="px-4 py-2 border-b">Rs.{paymentData?.accommodation}/-</td>
+                                <td className="px-4 py-2 border-b">INR {paymentData?.accommodation}/-</td>
                             </tr>
                             <tr>
                                 <td className="px-4 py-2 border-b">Partial Retreat Contribution</td>
-                                <td className="px-4 py-2 border-b">Rs.{paymentData?.partialRetreat}/-</td>
+                                <td className="px-4 py-2 border-b">INR {paymentData?.partialRetreat}/-</td>
                             </tr>
                             <tr>
                                 <td className="px-4 py-2 border-b">Prasad during retreat</td>
-                                <td className="px-4 py-2 border-b">Rs.{paymentData?.food}/-</td>
+                                <td className="px-4 py-2 border-b">INR {paymentData?.food}/-</td>
                             </tr>
                             <tr>
                                 <td className="px-4 py-2 border-b">Lunch during arrival</td>
-                                <td className="px-4 py-2 border-b">Rs.{paymentData?.arrivalLunch}/-</td>
+                                <td className="px-4 py-2 border-b">INR {paymentData?.arrivalLunch}/-</td>
                             </tr>
                             <tr>
                                 <td className="px-4 py-2 border-b">Lunch during departure</td>
-                                <td className="px-4 py-2 border-b">Rs.{paymentData?.departureLunch}/-</td>
+                                <td className="px-4 py-2 border-b">INR {paymentData?.departureLunch}/-</td>
                             </tr>
                             <tr>
                                 <td className="px-4 py-2 border-b">Discount</td>
-                                <td className="px-4 py-2 border-b">Rs.{paymentData?.coupon}/-</td>
+                                <td className="px-4 py-2 border-b">INR {paymentData?.coupon}/-</td>
                             </tr>
                         </tbody>
                     </table>
                     <div className="mb-8 mt-4">
-                        <label className="block text-xl font-semibold text-teal-800">Total Contributions: Rs.{paymentData?.totalCharges}/-</label>
+                        <label className="block text-xl font-semibold text-teal-800">Total Contributions: INR {paymentData?.totalCharges}/-</label>
                     </div>
                 </div>
                 <input type="hidden" name="key" value={paymentData?.key} />

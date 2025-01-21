@@ -115,6 +115,13 @@ const defaultSlot: Slot = {
     },
 };
 
+const roomDescriptionMap = {
+    [BedType.AB2]: "One spot in a 2 sharing room with attached bath",
+    [BedType.AB3]: "One spot in a 3 sharing room with attached bath (one mattress is on the floor)",
+    [BedType.AB4]: "One spot in a 4 sharing room with attached bath",
+    [BedType.NAB6]: "One spot in a 6 sharing room with non attached bath",
+}
+
 export default function Home() {
     const router = useRouter();
     const [userData, setUserData] = useState<UserData>(defaultUserData);
@@ -520,7 +527,7 @@ export default function Home() {
                                     onChange={handleChange}
                                     className="text-teal-500 focus:ring-teal-500"
                                 />
-                                <span className="ml-2 text-teal-700">Full registration with accommodation</span>
+                                <span className="ml-2 text-teal-700">Full registration with accommodation. (Accommodation will be at GRC)</span>
                             </label>
                             <label className="flex items-center cursor-pointer">
                                 <input
@@ -551,8 +558,8 @@ export default function Home() {
                         </div>
                     </div>
                     {userData?.registrationType === RegistrationType.FRWA ? (
-                        <div className="container mx-auto px-4 py-3 my-2 bg-gray-200">
-                            <div id="accommodation-options" className="">
+                        <div className="container mx-auto overflow-x-auto px-4 py-3 my-2 bg-gray-200">
+                            <div id="accommodation-options" className="min-w-[400px]">
                                 <label
                                     htmlFor="accommodation-type"
                                     className="block text-sm font-semibold text-teal-800"
@@ -561,7 +568,7 @@ export default function Home() {
                                 </label>
                                 <div className="mt-2">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-teal-900 text-sm">
+                                        <span className="text-teal-900 w-[30ch] text-sm">
                                             Bed type
                                         </span>
                                         <span className="text-teal-900 text-sm">
@@ -585,17 +592,17 @@ export default function Home() {
                                         return (
                                             <div className="mt-2" key={index}>
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-teal-800 font-mono w-[4ch] inline-block">
-                                                        {room}
+                                                    <span className="text-teal-800 mx-1 font-mono w-[15ch] inline-block">
+                                                        {roomDescriptionMap[room as keyof typeof roomDescriptionMap]}
                                                     </span>
-                                                    <span className="text-teal-800 font-mono w-[4ch] inline-block">
+                                                    <span className="text-teal-800 mx-1 font-mono w-[4ch] inline-block">
                                                         {
                                                             slotList[
                                                                 room as BedType
                                                             ]?.available
                                                         }
                                                     </span>
-                                                    <span className="text-teal-800 font-mono w-[4ch] inline-block">
+                                                    <span className="text-teal-800 mx-1 font-mono w-[4ch] inline-block">
                                                         {
                                                             slotList[
                                                                 room as BedType
@@ -645,7 +652,7 @@ export default function Home() {
                                             Contribution:
                                         </span>
                                         <span className="mt-2 text-teal-800">
-                                            Rs.{" "}
+                                            INR {" "}
                                             {roomQuantity["2AB"] *
                                                 slotList["2AB"]?.price +
                                                 roomQuantity["3AB"] *
@@ -669,7 +676,7 @@ export default function Home() {
                                     Contribution:
                                 </span>
                                 <span className="mt-2 text-teal-800">
-                                    Rs. {priceList["FRWOA"]["charges"]}/-
+                                    INR  {priceList["FRWOA"]["charges"]}/-
                                 </span>
                             </div>
                         </div>
@@ -707,7 +714,7 @@ export default function Home() {
                             <div className="mb">
                                 <div className="flex items-center justify-between">
                                     <span className="mt-2 text-teal-800">
-                                        Contribution: Rs.{" "}
+                                        Contribution: INR {" "}
                                         {priceList["PR"].partialRegistrationCharges *
                                             userData?.groupSize *
                                             getDateDifferenceFromString(
@@ -746,7 +753,7 @@ export default function Home() {
                                         Contribution:
                                     </span>
                                     <span className="mt-2 text-teal-800">
-                                        Rs.{userData?.foodType !== null ? priceList[userData?.registrationType]["foodFees"][userData.foodType] *
+                                        INR {userData?.foodType !== null ? priceList[userData?.registrationType]["foodFees"][userData.foodType] *
                                             (userData.registrationType === RegistrationType.PR ? getDateDifferenceFromString(userData?.startDate, userData?.endDate) : 1)
                                             : 0} /-
                                     </span>
@@ -757,7 +764,7 @@ export default function Home() {
 
                     <div className="mb-8">
                         <label className="block text-sm font-semibold text-teal-800">
-                            Will you take lunch prasadam on the day of arrival (1:30 pm - 3:30pm on 23 February 2025)? (Rs.{" "}
+                            Will you take lunch prasadam on the day of arrival (1:30 pm - 3:30pm on 23 February 2025)? (INR {" "}
                             {priceList.arrivalLunch} /- per person) *
                         </label>
                         <div className="mt-4 flex items-center gap-6">
@@ -795,7 +802,7 @@ export default function Home() {
                             <div className="mt">
                                 <div className="flex items-center justify-between">
                                     <span className="mt-2 text-teal-800">
-                                        Contribution: Rs.{" "}
+                                        Contribution: INR {" "}
                                         {priceList.arrivalLunch *
                                             userData?.groupSize}{" "}
                                         /-
@@ -806,7 +813,7 @@ export default function Home() {
                     </div>
                     <div className="mb-8">
                         <label className="block text-sm font-semibold text-teal-800">
-                            Will ou take lunch prasadam on the day of Departure (1:30 pm - 3:30 pm on march 2025)? (Rs.{" "}
+                            Will ou take lunch prasadam on the day of Departure (1:30 pm - 3:30 pm on march 2025)? (INR {" "}
                             {priceList.departureLunch}/- per person)*
                         </label>
                         <div className="mt-4 flex items-center gap-6">
@@ -844,7 +851,7 @@ export default function Home() {
                             <div className="mt">
                                 <div className="flex items-center justify-between">
                                     <span className="mt-2 text-teal-800">
-                                        Contribution: Rs.{" "}
+                                        Contribution: INR {" "}
                                         {priceList.departureLunch *
                                             userData?.groupSize}{" "}
                                         /-
@@ -904,24 +911,24 @@ export default function Home() {
                         className="mt-2 max-h-64 overflow-y-auto border border-teal-400 rounded-lg shadow-sm p-2"
                     >
                         {[
-                            { id: "assistant", label: "Sponsorship for personal assistant to one of the teachers — USD 1,300 / EUR 1200 / INR 10500" },
-                            { id: "dormitory", label: "Dormitory Facility per participant — USD 70 / EURO 70 / INR 6,000" },
-                            { id: "mobile", label: "Mobile for video shooting - Samsung Galaxy Ultra S25 - USD 1,800 / EURO 1,700 / INR 1,50,000" },
-                            { id: "tripod", label: "Tripod for video shooting - Digitech - USD 70 / EURO 70 / INR 6,000" },
-                            { id: "lens", label: "Blue lens / glasses for eye protection - USD 65 / EURO 60 / INR 5,000" },
-                            { id: "camera", label: "Camera for photography - USD 700 / EURO 680 / INR 60,000" },
-                            { id: "harmonium", label: "Harmonium — USD 210 / EUR 204 / INR 18,000" },
-                            { id: "turbans", label: "Turbans & Mukuts for Sri Giriraja - USD 35 / EUR 34 / INR 3,000" },
-                            { id: "daksina", label: "Daksina for Surabhi Kunda USD 60 / EUR 58 / INR 5,000" },
-                            { id: "canva", label: "One year Canva license - USD 50 / EUR 46 / INR 4,000" },
-                            { id: "cowGhee", label: "Pure cow ghee for all participants cooking - USD 1,200 / EUR 1,135 / INR 100,000" },
-                            { id: "puja", label: "Daily Puja at the VIHE - USD 15 / EUR 15 / INR 1,200" },
-                            { id: "recorder", label: "Digital recorder USD 380 / EUR 365 / INR 32,000" },
-                            { id: "oils", label: "Scented oils for Sri Sri Radha Govinda - USD 26 / EUR 24 / INR 2,000" },
-                            { id: "incense", label: "Incense for Sri Sri Radha Govinda - USD 30 / EUR 25 / INR 2,000" },
-                            { id: "vrajavasi", label: "Pure Vrajavasi cow ghee for puja - USD 20 / EUR 18 / INR 1,500" },
-                            { id: "sdCard", label: "Camera SD Card 256GB - USD 55 / EUR 50 / INR 4,200" },
-                            { id: "flowers", label: "Flowers for Puja during the retreats - USD 75 / EUR 70 / INR 6,000" },
+                            { id: "assistant", label: "Sponsorship for personal assistant to one of the teachers — USD 1,300 / EUR 1200 / INR  10500" },
+                            { id: "dormitory", label: "Dormitory Facility per participant — USD 70 / EURO 70 / INR  6,000" },
+                            { id: "mobile", label: "Mobile for video shooting - Samsung Galaxy Ultra S25 - USD 1,800 / EURO 1,700 / INR  1,50,000" },
+                            { id: "tripod", label: "Tripod for video shooting - Digitech - USD 70 / EURO 70 / INR  6,000" },
+                            { id: "lens", label: "Blue lens / glasses for eye protection - USD 65 / EURO 60 / INR  5,000" },
+                            { id: "camera", label: "Camera for photography - USD 700 / EURO 680 / INR  60,000" },
+                            { id: "harmonium", label: "Harmonium — USD 210 / EUR 204 / INR  18,000" },
+                            { id: "turbans", label: "Turbans & Mukuts for Sri Giriraja - USD 35 / EUR 34 / INR  3,000" },
+                            { id: "daksina", label: "Daksina for Surabhi Kunda USD 60 / EUR 58 / INR  5,000" },
+                            { id: "canva", label: "One year Canva license - USD 50 / EUR 46 / INR  4,000" },
+                            { id: "cowGhee", label: "Pure cow ghee for all participants cooking - USD 1,200 / EUR 1,135 / INR  100,000" },
+                            { id: "puja", label: "Daily Puja at the VIHE - USD 15 / EUR 15 / INR  1,200" },
+                            { id: "recorder", label: "Digital recorder USD 380 / EUR 365 / INR  32,000" },
+                            { id: "oils", label: "Scented oils for Sri Sri Radha Govinda - USD 26 / EUR 24 / INR  2,000" },
+                            { id: "incense", label: "Incense for Sri Sri Radha Govinda - USD 30 / EUR 25 / INR  2,000" },
+                            { id: "vrajavasi", label: "Pure Vrajavasi cow ghee for puja - USD 20 / EUR 18 / INR  1,500" },
+                            { id: "sdCard", label: "Camera SD Card 256GB - USD 55 / EUR 50 / INR  4,200" },
+                            { id: "flowers", label: "Flowers for Puja during the retreats - USD 75 / EUR 70 / INR  6,000" },
                             { id: "laptop", label: "I would like to donate a laptop" },
                             { id: "phone", label: "I would like to donate a phone" }
                         ].map((option) => (
@@ -995,7 +1002,7 @@ export default function Home() {
                             <div className="flex items-center justify-between">
                                 <span className="text-teal-900">Partial retreat</span>
                                 <span className="text-teal-900">
-                                    Rs.
+                                    INR 
                                     {
 
                                         priceList["PR"].partialRegistrationCharges *
@@ -1015,7 +1022,7 @@ export default function Home() {
                             <div className="flex items-center justify-between">
                                 <span className="text-teal-900">Retreat charges</span>
                                 <span className="text-teal-900">
-                                    Rs.
+                                    INR 
                                     {
                                         userData?.roomQuantity != null ?
                                             (priceList["FRWA"] as any)[Object.keys(userData?.roomQuantity).filter((item, idx, arr) => (userData?.roomQuantity as any)[item] > 0)[0] as any] : 0
@@ -1030,7 +1037,7 @@ export default function Home() {
                             <div className="flex items-center justify-between">
                                 <span className="text-teal-900">Retreat charges</span>
                                 <span className="text-teal-900">
-                                    Rs.
+                                    INR 
                                     {
                                         priceList["FRWOA"]["charges"]
                                     }
@@ -1043,7 +1050,7 @@ export default function Home() {
                         <div className="flex items-center justify-between">
                             <span className="text-teal-900">Arrival lunch</span>
                             <span className="text-teal-900">
-                                Rs.
+                                INR 
                                 {userData?.isArrivalLunchRequired ===
                                     YesNoType.Yes
                                     ? userData?.groupSize *
@@ -1059,7 +1066,7 @@ export default function Home() {
                                 Departure lunch
                             </span>
                             <span className="text-teal-900">
-                                Rs.
+                                INR 
                                 {userData?.isDepartureLunchRequired ===
                                     YesNoType.Yes
                                     ? userData?.groupSize *
@@ -1076,7 +1083,7 @@ export default function Home() {
                                     Prasad during retreat
                                 </span>
                                 <span className="text-teal-900">
-                                    Rs.
+                                    INR 
                                     {userData?.foodType !== FoodType.NONE && userData?.foodType !== null
                                         ? userData?.groupSize *
                                         priceList[userData?.registrationType].foodFees[userData?.foodType] *
@@ -1096,7 +1103,7 @@ export default function Home() {
                                 Total Contribution
                             </span>
                             <span className="text-teal-900">
-                                Rs.{" "}
+                                INR {" "}
                                 {(
                                     userData?.registrationType === RegistrationType.PR ?
                                         priceList["PR"].partialRegistrationCharges *
@@ -1146,7 +1153,7 @@ export default function Home() {
                                 Final Contribution{" "}
                             </span>
                             <span className="text-teal-900">
-                                Rs.{" "}
+                                INR {" "}
                                 {Math.round(
                                     (((
                                         userData?.registrationType === RegistrationType.PR ?
