@@ -44,7 +44,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                     let reqSlots = formSubmission && formSubmission.roomQuantity ? formSubmission.roomQuantity[slot.bedType] : 0;
                     let gender = formSubmission.personalDetails[0].gender;
                     if (gender === "male") {
-                        let ns = Math.round((slot.maleSpotsAvailable + reqSlots)/slot.spotsAvailable)*slot.spotsAvailable;
+                        let ns = Math.floor((slot.maleSpotsAvailable + reqSlots)/slot.spotsAvailable)*slot.spotsAvailable;
                         let ms = slot.maleSpotsAvailable + reqSlots - ns;
                         return {
                             updateMany: {
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                         };
                     }
                     else if (gender === "female") {
-                        let ns = Math.round((slot.femaleSpotsAvailable + reqSlots)/slot.spotsAvailable)*slot.spotsAvailable;
+                        let ns = Math.floor((slot.femaleSpotsAvailable + reqSlots)/slot.spotsAvailable)*slot.spotsAvailable;
                         let fs = slot.femaleSpotsAvailable + reqSlots - ns;
                         return {
                             updateMany: {

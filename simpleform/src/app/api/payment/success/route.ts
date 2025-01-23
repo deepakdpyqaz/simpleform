@@ -56,7 +56,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                         return {
                             updateMany: {
                                 filter: { bedType: slot.bedType },
-                                update: { $inc: {femaleSpotsHold: reqSlots } },
+                                update: { $inc: {femaleSpotsHold: -reqSlots } },
                             }
                         };
                     }

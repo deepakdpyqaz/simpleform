@@ -10,6 +10,7 @@ import logger from "../../../utils/logger";
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
         await connectToDatabase();
+        
         const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
 
         const [slots, data] = await Promise.all([
