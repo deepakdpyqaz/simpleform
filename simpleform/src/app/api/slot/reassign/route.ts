@@ -30,8 +30,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         }
         const changes = {
             "2AB": { "male": 0, "female": 0 },
-            "3AB": { "maleSpots": 0, "female": 0 },
-            "4AB": { "male": 0, "femaleSpots": 0 },
+            "3AB": { "male": 0, "female": 0 },
+            "4AB": { "male": 0, "female": 0 },
             "6NAB": { "male": 0, "female": 0 },
         }
 
@@ -46,6 +46,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             });
         });
 
+        const slotWrite: AnyBulkWriteOperation[] = slots.map((slot: ISlot) =>{
+            const change = changes[slot.bedType]
+            let neturalSlotChange = 0;
+            const maleSpotsAvailable = (change["male"]+slot.maleSpotsAvailable)%slot.spotsAvailable;
+            neturalSlotChange+=Math.floor((change["male"]+slot.maleSpotsAvailable)/slot.spotsAvailable);
+            const femaleSpotsAvailable = (change["female"]+slot.femaleSpotsAvailable)%slot.spotsAvailable;
+            neturalSlotChange+=Math.floor((change["female"]+slot.femaleSpotsAvailable)/slot.spotsAvailable);
+            return {
+                updateMany:{
+                    filter: { bedType: slot.bedType },
+                    update: { $set: { maleSpotsAvailable: maleSpotsAvailable, femaleSpotsAvailable: femaleSpotsAvailable },
+                            $inc: {
+                                neutralSpotsAvailable: neturalSlotChange,
+                                maleSpotsHold: -change["male"],
+                                femaleSpotsHold: -change["female"]
+                            } },
+                }
+            }
+        })
+        await Slot.bulkWrite(slotWrite);
         return new NextResponse(JSON.stringify({ message: "Success" }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
