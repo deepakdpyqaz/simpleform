@@ -9,6 +9,7 @@ import cache from '../utils/cache';
 import { generateHash } from "../utils/hashUtils";
 import { chargeCalculator } from '../utils/chargeUtils';
 import logger from '@/app/utils/logger';
+import Transaction, { ITransaction } from '../models/Transaction';
 
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -39,7 +40,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         else {
             slots = cachedSlots;
         }
-        const {foodPrice, partialRetreatPrice, accommodationPrice, departureLunchPrice, arrivalLunchPrice, totalPrice, discount, finalPrice} = await chargeCalculator(formSubmission);
+        const { foodPrice, partialRetreatPrice, accommodationPrice, departureLunchPrice, arrivalLunchPrice, totalPrice, discount, finalPrice } = await chargeCalculator(formSubmission);
         if (finalPrice !== formSubmission.charges) {
             logger.error(`${id} : Calculated price ${finalPrice} does not match with form submission charges ${formSubmission.charges}`);
             return new NextResponse(JSON.stringify({ message: "Invalid payment details, charges doesn't match with calculated" }), {
@@ -83,6 +84,30 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     } catch (error) {
         console.error(error);
         logger.error(`Error in GET /api/payment: ${error} : URL : ${req.url}`);
+        return new NextResponse(JSON.stringify({ message: error }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+}
+
+
+export async function POST(req: NextRequest): Promise<NextResponse> {
+    try {
+        await connectToDatabase();
+
+        const filters: Partial<ITransaction> = await req.json();
+
+        const transactions = await Transaction.find(filters);
+
+        return new NextResponse(JSON.stringify({ success: true, data: transactions }), {
+                status: 200, 
+                headers: { 'Content-Type': 'application/json' } 
+        });
+    }
+    catch (error) {
+        console.error(error);
+        logger.error(`Error in POST /api/payment: ${error} : URL : ${req.url}`);
         return new NextResponse(JSON.stringify({ message: error }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },

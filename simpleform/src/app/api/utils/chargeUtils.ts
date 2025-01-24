@@ -1,4 +1,4 @@
-import { priceList, RegistrationType, YesNoType } from "@/app/constants";
+import { FoodType, priceList, RegistrationType, YesNoType } from "@/app/constants";
 import Slot, { ISlot } from "../models/Slot";
 import cache from "./cache";
 import { getDateDifferenceFromString } from "./dateUtils";
@@ -13,8 +13,8 @@ export async function chargeCalculator(formSubmission: any) {
     else {
         slots = cachedSlots;
     }
-    const foodPrice = (formSubmission.foodType === YesNoType.Yes && formSubmission.startDate && formSubmission.endDate) ?
-        formSubmission.groupSize * priceList["PR"].foodFees["REGULAR"] * getDateDifferenceFromString(formSubmission.startDate, formSubmission.endDate)
+    const foodPrice = (formSubmission.foodType !== FoodType.NONE && formSubmission.startDate && formSubmission.endDate) ?
+        formSubmission.groupSize * (priceList as any)[formSubmission.registrationType].foodFees[formSubmission.foodType] * (formSubmission.registrationType===RegistrationType.PR?getDateDifferenceFromString(formSubmission.startDate, formSubmission.endDate):1)
         : 0;
 
     const accommodationPrice = (formSubmission.registrationType === RegistrationType.FRWA &&  formSubmission.roomQuantity != null && formSubmission.roomQuantity != undefined) ?
