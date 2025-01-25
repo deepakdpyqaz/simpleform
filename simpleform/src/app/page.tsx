@@ -60,7 +60,7 @@ const defaultUserData: UserData = {
     roomQuantity: defaultRoomQuantity,
     isFoodRequired: null,
     isPartialRetreat: null,
-    foodType: null,
+    foodType: FoodType.NONE,
     startDate: "2025-02-23",
     endDate: "2025-03-01",
     isArrivalLunchRequired: null,

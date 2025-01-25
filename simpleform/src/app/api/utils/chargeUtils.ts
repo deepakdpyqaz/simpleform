@@ -13,10 +13,9 @@ export async function chargeCalculator(formSubmission: any) {
     else {
         slots = cachedSlots;
     }
-    const foodPrice = (formSubmission.foodType !== FoodType.NONE && formSubmission.startDate && formSubmission.endDate) ?
+    const foodPrice = (formSubmission.foodType && formSubmission.startDate && formSubmission.endDate && formSubmission.registrationType !== RegistrationType.FRWA) ?
         formSubmission.groupSize * (priceList as any)[formSubmission.registrationType].foodFees[formSubmission.foodType] * (formSubmission.registrationType===RegistrationType.PR?getDateDifferenceFromString(formSubmission.startDate, formSubmission.endDate):1)
         : 0;
-
     const accommodationPrice = (formSubmission.registrationType === RegistrationType.FRWA &&  formSubmission.roomQuantity != null && formSubmission.roomQuantity != undefined) ?
         slots.reduce<number>((acc: number, slot: ISlot, idx: number, slotArr: ISlot[]): number => {
             if (formSubmission.roomQuantity) {
@@ -26,7 +25,7 @@ export async function chargeCalculator(formSubmission: any) {
         }, 0)
         : (formSubmission.registrationType === RegistrationType.FRWOA) ? priceList["FRWOA"].charges : 0;
     const partialRetreatPrice = (formSubmission.registrationType === RegistrationType.PR && formSubmission.startDate && formSubmission.endDate) ?
-        formSubmission.groupSize * priceList["PR"].partialRegistrationCharges * getDateDifferenceFromString(formSubmission.startDate, formSubmission.endDate)
+        formSubmission.groupSize * priceList[RegistrationType.PR].partialRegistrationCharges * getDateDifferenceFromString(formSubmission.startDate, formSubmission.endDate)
         : 0;
     const departureLunchPrice = formSubmission.isDepartureLunchRequired === YesNoType.Yes ? formSubmission.groupSize * priceList.departureLunch : 0;
     const arrivalLunchPrice = formSubmission.isArrivalLunchRequired === YesNoType.Yes ? formSubmission.groupSize * priceList.arrivalLunch : 0;
